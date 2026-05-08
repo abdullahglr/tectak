@@ -2,7 +2,7 @@
 
 Türkiye'deki teknoloji, savunma sanayii, robotik ve bilişim dünyasından en güncel etkinliklerin, fuarların ve yarışmaların merkezi takip platformu.
 
-![TecTak Preview](https://via.placeholder.com/1200x600?text=TECTAK+-+Teknoloji+Takvimi)
+![TecTak Preview](grafikbirleşenleri/tanitim.webp)
 
 ## 🚀 Özellikler
 

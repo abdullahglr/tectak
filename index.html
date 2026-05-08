@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="TECTAK - Türkiye'deki teknoloji, bilişim, robotik ve elektronik etkinliklerini keşfedin. Seminer, fuar, gösteri ve etkinlik takvimi.">
+  <meta name="description"
+    content="TECTAK - Türkiye'deki teknoloji, bilişim, robotik ve elektronik etkinliklerini keşfedin. Seminer, fuar, gösteri ve etkinlik takvimi.">
   <title>TECTAK — Teknoloji Takvimi</title>
 
   <!-- Leaflet CSS -->
@@ -12,6 +14,7 @@
   <!-- App CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <!-- ===== HEADER ===== -->
@@ -36,8 +39,10 @@
         </div>
       </div>
       <nav class="nav-links">
-        <button class="nav-link active" onclick="document.getElementById('events-section').scrollIntoView({behavior:'smooth'})">Etkinlikler</button>
-        <button class="nav-link" onclick="document.getElementById('map-section').scrollIntoView({behavior:'smooth'})">Harita</button>
+        <button class="nav-link active"
+          onclick="document.getElementById('events-section').scrollIntoView({behavior:'smooth'})">Etkinlikler</button>
+        <button class="nav-link"
+          onclick="document.getElementById('map-section').scrollIntoView({behavior:'smooth'})">Harita</button>
       </nav>
     </div>
   </header>
@@ -47,14 +52,14 @@
     <div class="container">
       <div class="hero-badge">
         <span class="pulse-dot"></span>
-        Canlı Etkinlik Takibi <span style="margin:0 8px;opacity:0.5;">|</span> Sonraki Güncelleme: <span id="countdown-timer" style="font-weight:bold;color:var(--accent-green);">Yükleniyor...</span>
+        Canlı Etkinlik Takibi <span style="margin:0 8px;opacity:0.5;">|</span> Sonraki Güncelleme: <span
+          id="countdown-timer" style="font-weight:bold;color:var(--accent-green);">Yükleniyor...</span>
       </div>
       <h1>Teknoloji Dünyasının<br><span class="gradient-text">Etkinlik Takvimi</span></h1>
       <p>Türkiye'deki seminer, fuar, gösteri ve etkinlikleri keşfedin. Kategorize edin, takip edin, kaydolun.</p>
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" class="search-input"
-               placeholder="Etkinlik, şehir veya konu ara...">
+        <input type="text" id="search-input" class="search-input" placeholder="Etkinlik, şehir veya konu ara...">
       </div>
       <div class="price-filters">
         <label class="price-filter-label">
@@ -109,8 +114,8 @@
   <!-- ===== FOOTER ===== -->
   <footer class="footer">
     <div class="container">
-      <p><span class="gradient-text">TECTAK</span> — Teknoloji Takvimi © 2026</p>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">Abdullah GÜLER tarafından geliştirilmiştir.</p>
+      <p><span class="gradient-text">TECTAK</span> — Teknoloji Takvimi © 2026 - Abdullah GÜLER tarafından
+        geliştirilmiştir</p>
     </div>
   </footer>
 
@@ -120,4 +125,5 @@
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
