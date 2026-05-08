@@ -1,3 +1,7 @@
+/**
+ * TECTAK - Teknoloji Takvimi Uygulama Mantığı
+ * Abdullah GÜLER tarafından geliştirilmiştir.
+ */
 // TECTAK - Teknoloji Takvimi Uygulama Mantığı
 
 // Load events from a local JSON file (events.json). If it fails, fall back to built‑in mock data.

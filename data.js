@@ -1,3 +1,7 @@
+/**
+ * TECTAK - Teknoloji Takvimi Etkinlik Verileri
+ * Abdullah GÜLER tarafından geliştirilmiştir.
+ */
 // TECTAK - Teknoloji Takvimi Etkinlik Verileri
 const events = [
   // --- SAVUNMA SANAYİ ---
