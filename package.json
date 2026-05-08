@@ -1,0 +1,11 @@
+{
+  "name": "tectak",
+  "version": "1.0.0",
+  "description": "TECTAK technology calendar static site",
+  "scripts": {
+    "update-events": "node fetch_events.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {}
+}
