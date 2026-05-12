@@ -1,3 +1,12 @@
+/**
+ * TECTAK - Haber Detay Mantığı
+ * Geliştirici: Abdullah GÜLER
+ * LinkedIn: https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/
+ */
+
+console.log("%c📰 TECTAK Haber Sistemi Aktif", "color: #00D4FF; font-weight: bold;");
+console.log("%c👨‍💻 Geliştirici: Abdullah GÜLER", "color: #00FF88;");
+
 document.addEventListener('DOMContentLoaded', () => {
   const contentArea = document.getElementById('blog-content-area');
   

@@ -1,7 +1,12 @@
 /**
  * TECTAK - Teknoloji Takvimi Uygulama Mantığı
- * Abdullah GÜLER tarafından geliştirilmiştir.
+ * Geliştirici: Abdullah GÜLER
+ * LinkedIn: https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/
  */
+
+console.log("%c🚀 TECTAK Platformu Başlatıldı", "color: #00D4FF; font-size: 20px; font-weight: bold;");
+console.log("%c👨‍💻 Geliştirici: Abdullah GÜLER", "color: #00FF88; font-size: 14px;");
+console.log("%c🔗 LinkedIn: https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/", "color: #888; font-size: 12px;");
 
 // Load events from local JSON or fallback to data.js
 async function loadEvents() {
