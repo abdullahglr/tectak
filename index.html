@@ -160,10 +160,25 @@
     </div>
   </footer>
 
-  <!-- ===== BACK TO TOP ===== -->
-  <button id="back-to-top" class="back-to-top" title="Yukarı Çık">
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
-  </button>
+  <!-- ===== MOBILE BOTTOM NAV ===== -->
+  <nav class="mobile-bottom-nav">
+    <button class="mobile-nav-item active" data-target="events-section">
+      <span class="m-nav-icon">🎯</span>
+      <span class="m-nav-label">Etkinlikler</span>
+    </button>
+    <button class="mobile-nav-item" data-target="calendar-section">
+      <span class="m-nav-icon">📅</span>
+      <span class="m-nav-label">Takvim</span>
+    </button>
+    <button class="mobile-nav-item" data-target="news-section">
+      <span class="m-nav-icon">📰</span>
+      <span class="m-nav-label">Haberler</span>
+    </button>
+    <button class="mobile-nav-item" data-target="map-section">
+      <span class="m-nav-icon">📍</span>
+      <span class="m-nav-label">Harita</span>
+    </button>
+  </nav>
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

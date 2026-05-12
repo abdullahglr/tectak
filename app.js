@@ -460,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setTimeout(updateNavIndicator, 200);
 
+  // Desktop Nav logic
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -475,6 +476,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Mobile Bottom Nav logic
+  const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+  mobileNavItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = item.dataset.target;
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        const offset = 60; // Slightly smaller offset for mobile
+        window.scrollTo({ top: targetEl.offsetTop - offset, behavior: 'smooth' });
+        mobileNavItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      }
+    });
+  });
+
   window.addEventListener('scroll', () => {
     const sections = ['events-section', 'calendar-section', 'news-section', 'map-section'];
     let current = '';
@@ -484,11 +501,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (section && scrollPos >= section.offsetTop - 120) current = id;
     });
     if (current) {
+      // Update desktop nav
       const targetLink = document.querySelector(`.nav-link[data-target="${current}"]`);
       if (targetLink && !targetLink.classList.contains('active')) {
         navLinks.forEach(l => l.classList.remove('active'));
         targetLink.classList.add('active');
         updateNavIndicator();
+      }
+      // Update mobile nav
+      const targetMobileItem = document.querySelector(`.mobile-nav-item[data-target="${current}"]`);
+      if (targetMobileItem && !targetMobileItem.classList.contains('active')) {
+        mobileNavItems.forEach(i => i.classList.remove('active'));
+        targetMobileItem.classList.add('active');
       }
     }
   });
