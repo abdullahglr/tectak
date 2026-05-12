@@ -431,7 +431,7 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
 
 /* ===== MAP SECTION ===== */
 .map-section {
-  padding: 40px 0 60px;
+  padding: 40px 0 120px;
 }
 .map-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
 .map-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
