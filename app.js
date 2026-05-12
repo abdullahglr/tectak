@@ -2,9 +2,8 @@
  * TECTAK - Teknoloji Takvimi Uygulama Mantığı
  * Abdullah GÜLER tarafından geliştirilmiştir.
  */
-// TECTAK - Teknoloji Takvimi Uygulama Mantığı
 
-// Load events from a local JSON file (events.json). If it fails, fall back to built‑in mock data.
+// Load events from local JSON or fallback to data.js
 async function loadEvents() {
   try {
     const resp = await fetch('./events.json');
@@ -18,7 +17,6 @@ async function loadEvents() {
   // Fallback to data.js content
   window.events = typeof events !== 'undefined' ? events : [];
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
   const state = {
@@ -52,11 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initMap();
     updateStats();
 
-    searchInput.addEventListener('input', (e) => {
-      state.searchQuery = e.target.value.toLowerCase();
-      renderEvents();
-      renderCalendar(); // Update dots if search filtering is applied (optional, but good for consistency)
-    });
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value.toLowerCase();
+        renderEvents();
+        renderCalendar();
+      });
+    }
 
     document.querySelectorAll('input[name="priceFilter"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
@@ -66,35 +66,37 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    document.getElementById('prev-month').addEventListener('click', () => {
-      state.calendarDate.setMonth(state.calendarDate.getMonth() - 1);
-      renderCalendar();
-    });
-    document.getElementById('next-month').addEventListener('click', () => {
-      state.calendarDate.setMonth(state.calendarDate.getMonth() + 1);
-      renderCalendar();
-    });
+    const prevBtn = document.getElementById('prev-month');
+    const nextBtn = document.getElementById('next-month');
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        state.calendarDate.setMonth(state.calendarDate.getMonth() - 1);
+        renderCalendar();
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        state.calendarDate.setMonth(state.calendarDate.getMonth() + 1);
+        renderCalendar();
+      });
+    }
   }
 
   // --- Filter ---
   function getFilteredEvents() {
-    let currentEvents = window.events || events;
+    let currentEvents = window.events || (typeof events !== 'undefined' ? events : []);
     let filtered = [...currentEvents];
 
-    // Filter out past events (keep today and future)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     filtered = filtered.filter(e => new Date(e.date) >= today);
 
-    // Sort by date
     filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    // Category filter
     if (state.activeCategory !== 'tumu') {
       filtered = filtered.filter(e => e.category === state.activeCategory);
     }
 
-    // Search filter
     if (state.searchQuery) {
       filtered = filtered.filter(e =>
         e.title.toLowerCase().includes(state.searchQuery) ||
@@ -104,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     }
 
-    // Price filter
     if (state.priceFilter === 'free') {
       filtered = filtered.filter(e => e.price === 'Ücretsiz');
     } else if (state.priceFilter === 'paid') {
@@ -116,8 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Tabs ---
   function renderTabs() {
-    const currentEvents = window.events || events;
-    tabsContainer.innerHTML = categories.map(cat => {
+    if (!tabsContainer) return;
+    const currentEvents = window.events || (typeof events !== 'undefined' ? events : []);
+    const cats = typeof categories !== 'undefined' ? categories : [];
+    
+    tabsContainer.innerHTML = cats.map(cat => {
       const count = cat.id === 'tumu' ? currentEvents.length : currentEvents.filter(e => e.category === cat.id).length;
       return `<button class="tab-btn ${cat.id === state.activeCategory ? 'active' : ''}"
                 data-category="${cat.id}">
@@ -138,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- SVG Icons ---
   const icons = {
     clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
     location: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
@@ -146,18 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
     org: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
   };
 
-  // Helper to avoid placeholder/example.com URLs
-function safeUrl(url) {
-  return url && !url.includes('example.com') ? url : '#';
-}
-function safeLabel(url) {
-  return url && !url.includes('example.com') ? 'Kayıt Ol' : 'Bilgi Yok';
-}
-
   // --- Events ---
   function renderEvents() {
+    if (!eventsGrid) return;
     const filtered = getFilteredEvents();
-    eventsCount.textContent = `${filtered.length} etkinlik`;
+    if (eventsCount) eventsCount.textContent = `${filtered.length} etkinlik`;
 
     if (filtered.length === 0) {
       eventsGrid.innerHTML = `
@@ -174,7 +170,7 @@ function safeLabel(url) {
       const day = d.getDate();
       const month = months[d.getMonth()];
       const year = d.getFullYear();
-      const typeColor = typeColors[event.type] || '#888';
+      const typeColor = (typeof typeColors !== 'undefined' && typeColors[event.type]) || '#888';
       const isFree = event.price === 'Ücretsiz';
       
       const statusBadge = isClosed ? 
@@ -184,6 +180,9 @@ function safeLabel(url) {
       const priceBadge = isFree ? 
         '<span class="event-type-badge" style="background:rgba(0,212,255,0.1);color:var(--accent-blue);border:1px solid rgba(0,212,255,0.3);">Ücretsiz</span>' : 
         '<span class="event-type-badge" style="background:rgba(255,217,61,0.1);color:#FFD93D;border:1px solid rgba(255,217,61,0.3);">Ücretli</span>';
+
+      const catLabel = typeof categories !== 'undefined' ? (categories.find(c => c.id === event.category)?.label || event.category) : event.category;
+      const catIcon = typeof categories !== 'undefined' ? (categories.find(c => c.id === event.category)?.icon || '') : '';
 
       return `<div class="event-card" style="animation-delay:${i * 0.06}s; ${isClosed ? 'opacity:0.6;' : ''}"
                    data-id="${event.id}" data-url="event.html?id=${event.id}">
@@ -197,7 +196,7 @@ function safeLabel(url) {
             ${statusBadge}
             ${priceBadge}
             <span class="event-type-badge" style="background:${typeColor}20;color:${typeColor}">${event.type}</span>
-            <span class="event-category-tag">${categories.find(c => c.id === event.category)?.icon || ''} ${categories.find(c => c.id === event.category)?.label || event.category}</span>
+            <span class="event-category-tag">${catIcon} ${catLabel}</span>
           </div>
           <div class="event-title">${event.title}</div>
           <div class="event-description">${event.description}</div>
@@ -217,56 +216,48 @@ function safeLabel(url) {
     const closedEvents = filtered.filter(e => e.registrationStatus === 'closed');
 
     let html = '';
-    
     if (openEvents.length > 0) {
       html += `<div style="margin-bottom: 8px; font-size: 1.2rem; font-weight: bold; color: var(--text-primary); border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;"><span style="color:#00ff88">●</span> Başvuruları Açık Etkinlikler</div>`;
       html += openEvents.map((e, i) => renderCard(e, i, false)).join('');
     }
-    
     if (closedEvents.length > 0) {
       html += `<div style="margin-top: 32px; margin-bottom: 8px; font-size: 1.2rem; font-weight: bold; color: var(--text-muted); border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; display: flex; align-items: center; gap: 8px;"><span style="color:#ff4444">●</span> Başvuruları Kapanan Etkinlikler</div>`;
       html += closedEvents.map((e, i) => renderCard(e, i, true)).join('');
     }
-
     eventsGrid.innerHTML = html;
   }
 
   // --- Stats ---
   function updateStats() {
-    const currentEvents = window.events || events;
+    const currentEvents = window.events || (typeof events !== 'undefined' ? events : []);
     if (totalCount) totalCount.textContent = currentEvents.length;
   }
 
   // --- Map ---
   function initMap() {
-    state.mapInstance = L.map('map', {
-      zoomControl: false
-    }).setView([39.0, 32.0], 6);
+    const mapEl = document.getElementById('map');
+    if (!mapEl || typeof L === 'undefined') return;
 
+    state.mapInstance = L.map('map', { zoomControl: false }).setView([39.0, 32.0], 6);
     L.control.zoom({ position: 'topright' }).addTo(state.mapInstance);
-
-    // Dark tile layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© <a href="https://carto.com/">CARTO</a>',
-      maxZoom: 18
+      attribution: '© CARTO', maxZoom: 18
     }).addTo(state.mapInstance);
 
     updateMapMarkers();
 
-    // Map toggle buttons
     document.querySelectorAll('.map-toggle').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.map-toggle').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const mode = btn.dataset.mode;
-        state.showHeat = mode === 'heat';
+        state.showHeat = btn.dataset.mode === 'heat';
         updateMapMarkers();
       });
     });
   }
 
   function updateMapMarkers() {
-    // Clear existing
+    if (!state.mapInstance) return;
     state.markers.forEach(m => state.mapInstance.removeLayer(m));
     state.markers = [];
     if (state.heatLayer) {
@@ -276,33 +267,22 @@ function safeLabel(url) {
 
     const filtered = getFilteredEvents();
 
-    if (state.showHeat) {
-      // Heat map
+    if (state.showHeat && typeof L.heatLayer === 'function') {
       const heatData = filtered.map(e => [e.lat, e.lng, 0.8]);
-      if (typeof L.heatLayer === 'function') {
-        state.heatLayer = L.heatLayer(heatData, {
-          radius: 35, blur: 25, maxZoom: 10,
-          gradient: { 0.2: '#00D4FF', 0.5: '#00FF88', 0.8: '#FFD93D', 1: '#FF6B6B' }
-        }).addTo(state.mapInstance);
-      }
+      state.heatLayer = L.heatLayer(heatData, {
+        radius: 35, blur: 25, maxZoom: 10,
+        gradient: { 0.2: '#00D4FF', 0.5: '#00FF88', 0.8: '#FFD93D', 1: '#FF6B6B' }
+      }).addTo(state.mapInstance);
     } else {
-      // Pin markers
       filtered.forEach(event => {
-        const typeColor = typeColors[event.type] || '#888';
+        const typeColor = (typeof typeColors !== 'undefined' && typeColors[event.type]) || '#888';
         const isClosed = event.registrationStatus === 'closed';
         const ringColor = isClosed ? '#ff4444' : '#00ff88';
 
         const icon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="
-            width:14px;height:14px;border-radius:50%;
-            background:${typeColor};
-            box-shadow:0 0 12px ${typeColor}80;
-            border:2px solid ${ringColor};
-            opacity: ${isClosed ? '0.5' : '1'};
-          "></div>`,
-          iconSize: [14, 14],
-          iconAnchor: [7, 7]
+          html: `<div style="width:14px;height:14px;border-radius:50%;background:${typeColor};box-shadow:0 0 12px ${typeColor}80;border:2px solid ${ringColor};opacity:${isClosed ? '0.5' : '1'};"></div>`,
+          iconSize: [14, 14], iconAnchor: [7, 7]
         });
 
         const statusText = isClosed ? '<span style="color:#ff4444;font-size:0.75rem;font-weight:bold;">🔴 BAŞVURULAR KAPALI</span>' : '<span style="color:#00ff88;font-size:0.75rem;font-weight:bold;">🟢 BAŞVURULAR AÇIK</span>';
@@ -314,10 +294,9 @@ function safeLabel(url) {
             <div class="popup-detail">📍 ${event.location}</div>
             <div class="popup-detail">📅 ${new Date(event.date).getDate()} ${fullMonths[new Date(event.date).getMonth()]} ${new Date(event.date).getFullYear()}</div>
             <div class="popup-detail">🕐 ${event.time}</div>
-            <a href="event.html?id=${event.id}" style="display:block; margin-top:12px; padding:8px; background:linear-gradient(135deg, var(--accent-blue), rgba(0,212,255,0.7)); color:#000; text-align:center; border-radius:4px; text-decoration:none; font-weight:bold; transition:all 0.3s; font-family:inherit;">Detaylara Git</a>
+            <a href="event.html?id=${event.id}" style="display:block; margin-top:12px; padding:8px; background:linear-gradient(135deg, var(--accent-blue), rgba(0,212,255,0.7)); color:#000; text-align:center; border-radius:4px; text-decoration:none; font-weight:bold; transition:all 0.3s;">Detaylara Git</a>
           `)
           .addTo(state.mapInstance);
-
         state.markers.push(marker);
       });
     }
@@ -332,70 +311,53 @@ function safeLabel(url) {
 
     const year = state.calendarDate.getFullYear();
     const month = state.calendarDate.getMonth();
-
     monthYearLabel.textContent = `${fullMonths[month]} ${year}`;
 
-    // Get first day of month (0 = Sunday, we want 1 = Monday as first column)
     let firstDay = new Date(year, month, 1).getDay();
-    // Adjust for Monday start: 0(Sun) becomes 6, 1(Mon) becomes 0
     firstDay = (firstDay === 0) ? 6 : firstDay - 1;
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
-
     let html = '';
 
-    // Empty cells for previous month
     for (let i = 0; i < firstDay; i++) {
       html += `<div class="calendar-day other-month"></div>`;
     }
 
-    const allEvents = window.events || events;
+    const allEvents = window.events || (typeof events !== 'undefined' ? events : []);
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
       const dayEvents = allEvents.filter(e => e.date === dateStr);
-      
       const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
       const hasEvent = dayEvents.length > 0;
 
       let dotsHtml = '';
       if (hasEvent) {
         dotsHtml = `<div class="event-dots">` + 
-          dayEvents.slice(0, 3).map(e => `<span class="event-dot" style="background:${typeColors[e.type] || 'var(--accent-blue)'}"></span>`).join('') +
-          `</div>`;
+          dayEvents.slice(0, 3).map(e => {
+            const color = (typeof typeColors !== 'undefined' && typeColors[e.type]) || 'var(--accent-blue)';
+            return `<span class="event-dot" style="background:${color}"></span>`;
+          }).join('') + `</div>`;
       }
 
-      html += `
-        <div class="calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}" 
-             data-date="${dateStr}">
-          ${day}
-          ${dotsHtml}
-        </div>`;
+      html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}" data-date="${dateStr}">${day}${dotsHtml}</div>`;
     }
-
     grid.innerHTML = html;
 
-    // Day clicks
     grid.querySelectorAll('.calendar-day').forEach(el => {
       if (el.classList.contains('other-month')) return;
       el.addEventListener('click', () => {
         grid.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('active'));
         el.classList.add('active');
-        
         const selectedDate = el.dataset.date;
         const dayEvents = allEvents.filter(e => e.date === selectedDate);
-        
         if (dayEvents.length > 0) {
           detailsContainer.innerHTML = dayEvents.map(e => `
-            <div class="cal-detail-card" style="border-left-color: ${typeColors[e.type] || 'var(--accent-blue)'}">
-              <div class="cal-detail-info">
-                <h4>${e.title}</h4>
-                <p>${e.time} - ${e.location}</p>
-              </div>
+            <div class="cal-detail-card" style="border-left-color: ${(typeof typeColors !== 'undefined' && typeColors[e.type]) || 'var(--accent-blue)'}">
+              <div class="cal-detail-info"><h4>${e.title}</h4><p>${e.time} - ${e.location}</p></div>
               <a href="event.html?id=${e.id}" class="cal-detail-btn">Detay</a>
-            </div>
-          `).join('');
+            </div>`).join('');
         } else {
           detailsContainer.innerHTML = `<p class="empty-msg">${new Date(selectedDate).getDate()} ${fullMonths[new Date(selectedDate).getMonth()]} tarihinde etkinlik bulunmuyor.</p>`;
         }
@@ -407,159 +369,28 @@ function safeLabel(url) {
   function startCountdown() {
     const timerElement = document.getElementById('countdown-timer');
     if (!timerElement) return;
-
     function update() {
       const now = new Date();
       const nextUpdate = new Date();
       nextUpdate.setDate(now.getDate() + 1);
       nextUpdate.setHours(0, 0, 0, 0);
-
       const diff = nextUpdate - now;
-      if (diff <= 0) {
-        timerElement.textContent = "Güncelleniyor...";
-        return;
-      }
-
+      if (diff <= 0) { timerElement.textContent = "Güncelleniyor..."; return; }
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const mins = Math.floor((diff / 1000 / 60) % 60);
       const secs = Math.floor((diff / 1000) % 60);
-
       timerElement.textContent = `${hours.toString().padStart(2, '0')}s ${mins.toString().padStart(2, '0')}d ${secs.toString().padStart(2, '0')}sn`;
     }
-
     update();
     setInterval(update, 1000);
   }
-
-  loadEvents().then(() => {
-    init();
-    startCountdown();
-    startNewsTimer();
-  });
-  // Navigation & Sliding Indicator Logic
-  const navLinks = document.querySelectorAll('.nav-link');
-  const navIndicator = document.getElementById('nav-indicator');
-
-  function updateNavIndicator() {
-    const activeLink = document.querySelector('.nav-link.active');
-    if (activeLink && navIndicator) {
-      navIndicator.style.width = `${activeLink.offsetWidth}px`;
-      navIndicator.style.left = `${activeLink.offsetLeft}px`;
-    }
-  }
-
-  // Initial update
-  setTimeout(updateNavIndicator, 100);
-
-  navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const targetId = link.dataset.target;
-      const targetEl = document.getElementById(targetId);
-      
-      if (targetEl) {
-        const headerOffset = 72; // Header height is 72px in CSS
-        const targetPosition = targetEl.offsetTop - headerOffset;
-
-        window.scrollTo({
-          top: targetPosition,
-          behavior: 'smooth'
-        });
-
-        // Update active state immediately for better feedback
-        navLinks.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-        updateNavIndicator();
-      }
-    });
-  });
-
-  // Scroll Spy to update active link on scroll
-  window.addEventListener('scroll', () => {
-    const sections = ['events-section', 'calendar-section', 'news-section', 'map-section'];
-    let current = '';
-    
-    const scrollPos = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-    const windowHeight = window.innerHeight;
-    const docHeight = document.documentElement.scrollHeight;
-
-    // Check if we are at the bottom of the page
-    if (scrollPos + windowHeight >= docHeight - 50) {
-      current = 'map-section';
-    } else {
-      sections.forEach(id => {
-        const section = document.getElementById(id);
-        if (section) {
-          // If section is at least 100px from top, consider it active
-          if (scrollPos >= section.offsetTop - 100) {
-            current = id;
-          }
-        }
-      });
-    }
-
-    if (current) {
-      const targetLink = document.querySelector(`.nav-link[data-target="${current}"]`);
-      if (targetLink && !targetLink.classList.contains('active')) {
-        navLinks.forEach(link => link.classList.remove('active'));
-        targetLink.classList.add('active');
-        updateNavIndicator();
-      }
-    }
-  });
-
-  // Back to Top Logic
-  const backToTopBtn = document.getElementById('back-to-top');
-  if (backToTopBtn) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 500) {
-        backToTopBtn.classList.add('show');
-      } else {
-        backToTopBtn.classList.remove('show');
-      }
-    });
-    backToTopBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
-
-  // Add card click navigation
-  document.addEventListener('click', function(e) {
-    const card = e.target.closest('.event-card');
-    if (card && card.dataset.url) {
-      window.location.href = card.dataset.url;
-    }
-  });
-
-  // Scroll Reveal Observer
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('revealed');
-        // If it's a staggered grid, we might want to unobserve once revealed
-        if (entry.target.classList.contains('reveal')) {
-          revealObserver.unobserve(entry.target);
-        }
-      }
-    });
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  });
-
-  function observeReveals() {
-    document.querySelectorAll('.reveal:not(.revealed), .reveal-stagger:not(.revealed)').forEach(el => {
-      revealObserver.observe(el);
-    });
-  }
-
-  observeReveals();
 
   // --- News Section ---
   function renderNews() {
     const newsGrid = document.getElementById('news-grid');
     const viewAllLink = document.querySelector('.view-all-link');
-    if (!newsGrid || !window.news) return;
+    const currentNews = window.news || [];
+    if (!newsGrid || currentNews.length === 0) return;
 
     if (viewAllLink) viewAllLink.href = 'all_news.html';
 
@@ -567,8 +398,7 @@ function safeLabel(url) {
     const threeWeeksAgo = new Date();
     threeWeeksAgo.setDate(now.getDate() - 21);
 
-    // Filter by date (last 3 weeks) and show max 6 on home
-    const filteredHomeNews = window.news
+    const filteredHomeNews = currentNews
       .filter(item => new Date(item.date) >= threeWeeksAgo)
       .slice(0, 6);
 
@@ -584,39 +414,96 @@ function safeLabel(url) {
           <div class="news-card-date">${item.date} | ${item.source}</div>
           <h3 class="news-card-title">${item.title}</h3>
           <p class="news-card-summary">${item.summary}</p>
-          <div class="news-card-footer">
-            <span>Devamını Oku →</span>
-            <span>📂 Blog</span>
-          </div>
+          <div class="news-card-footer"><span>Devamını Oku →</span><span>📂 Blog</span></div>
         </div>
-      </div>
-    `).join('');
+      </div>`).join('');
 
-    // Observe newly created cards for reveal animation
-    newsGrid.querySelectorAll('.reveal').forEach(card => {
-      revealObserver.observe(card);
-    });
+    newsGrid.querySelectorAll('.reveal').forEach(card => { if (revealObserver) revealObserver.observe(card); });
   }
 
   function startNewsTimer() {
     const newsTimerEl = document.getElementById('news-timer');
     if (!newsTimerEl) return;
-
     function updateTimer() {
       const now = new Date();
-      // Target is next even hour
       const target = new Date();
       target.setHours(now.getHours() + (2 - (now.getHours() % 2)), 0, 0, 0);
-
       const diff = target - now;
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const mins = Math.floor((diff / 1000 / 60) % 60);
       const secs = Math.floor((diff / 1000) % 60);
-
       newsTimerEl.textContent = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
-
     updateTimer();
     setInterval(updateTimer, 1000);
+  }
+
+  // --- Start ---
+  loadEvents().then(() => {
+    init();
+    startCountdown();
+    startNewsTimer();
+    observeReveals();
+  });
+
+  // --- Scroll & Nav ---
+  const navLinks = document.querySelectorAll('.nav-link');
+  const navIndicator = document.getElementById('nav-indicator');
+
+  function updateNavIndicator() {
+    const activeLink = document.querySelector('.nav-link.active');
+    if (activeLink && navIndicator) {
+      navIndicator.style.width = `${activeLink.offsetWidth}px`;
+      navIndicator.style.left = `${activeLink.offsetLeft}px`;
+    }
+  }
+
+  setTimeout(updateNavIndicator, 200);
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.dataset.target;
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        const offset = 72;
+        window.scrollTo({ top: targetEl.offsetTop - offset, behavior: 'smooth' });
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        updateNavIndicator();
+      }
+    });
+  });
+
+  window.addEventListener('scroll', () => {
+    const sections = ['events-section', 'calendar-section', 'news-section', 'map-section'];
+    let current = '';
+    const scrollPos = window.scrollY;
+    sections.forEach(id => {
+      const section = document.getElementById(id);
+      if (section && scrollPos >= section.offsetTop - 120) current = id;
+    });
+    if (current) {
+      const targetLink = document.querySelector(`.nav-link[data-target="${current}"]`);
+      if (targetLink && !targetLink.classList.contains('active')) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        targetLink.classList.add('active');
+        updateNavIndicator();
+      }
+    }
+  });
+
+  // Reveal logic
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        if (entry.target.classList.contains('reveal')) revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  function observeReveals() {
+    document.querySelectorAll('.reveal:not(.revealed), .reveal-stagger:not(.revealed)').forEach(el => revealObserver.observe(el));
   }
 });
