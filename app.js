@@ -6,40 +6,17 @@
 
 // Load events from a local JSON file (events.json). If it fails, fall back to built‑in mock data.
 async function loadEvents() {
-  // If the page is loaded via file:// protocol, skip fetch to avoid CORS errors.
-  if (window.location.protocol === 'file:') {
-    console.warn('Running from file:// – using built‑in mock data');
-    return;
-  }
-
-  const localUrl = './events.json'; // static JSON placed in project root
-  const remoteUrl = 'https://example.com/tectak/events.json'; // replace with real API if available
-
-  // Try local file first
   try {
-    const resp = await fetch(localUrl);
+    const resp = await fetch('./events.json');
     if (resp.ok) {
       window.events = await resp.json();
-      console.log('Loaded events from local events.json, count:', window.events.length);
       return;
     }
-    console.warn('Local events.json not found (status', resp.status, '), trying remote...');
   } catch (e) {
-    console.warn('Error fetching local events.json:', e);
+    // silence fetch error (likely CORS on file://)
   }
-
-  // Remote fallback (optional)
-  try {
-    const resp = await fetch(remoteUrl);
-    if (resp.ok) {
-      window.events = await resp.json();
-      console.log('Loaded events from remote URL, count:', window.events.length);
-    } else {
-      console.warn('Remote fetch failed (status', resp.status, ') – using built‑in mock data');
-    }
-  } catch (e) {
-    console.warn('Error fetching remote events:', e);
-  }
+  // Fallback to data.js content
+  window.events = typeof events !== 'undefined' ? events : [];
 }
 
 
@@ -51,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     markers: [],
     heatLayer: null,
     showHeat: false,
-    priceFilter: 'all'
+    priceFilter: 'all',
+    calendarDate: new Date()
   };
 
   // --- DOM Refs ---
@@ -69,19 +47,32 @@ document.addEventListener('DOMContentLoaded', () => {
   function init() {
     renderTabs();
     renderEvents();
+    renderCalendar();
+    renderNews();
     initMap();
     updateStats();
 
     searchInput.addEventListener('input', (e) => {
       state.searchQuery = e.target.value.toLowerCase();
       renderEvents();
+      renderCalendar(); // Update dots if search filtering is applied (optional, but good for consistency)
     });
 
     document.querySelectorAll('input[name="priceFilter"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         state.priceFilter = e.target.value;
         renderEvents();
+        renderCalendar();
       });
+    });
+
+    document.getElementById('prev-month').addEventListener('click', () => {
+      state.calendarDate.setMonth(state.calendarDate.getMonth() - 1);
+      renderCalendar();
+    });
+    document.getElementById('next-month').addEventListener('click', () => {
+      state.calendarDate.setMonth(state.calendarDate.getMonth() + 1);
+      renderCalendar();
     });
   }
 
@@ -332,6 +323,86 @@ function safeLabel(url) {
     }
   }
 
+  // --- Calendar ---
+  function renderCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    const monthYearLabel = document.getElementById('current-month-year');
+    const detailsContainer = document.getElementById('calendar-event-details');
+    if (!grid || !monthYearLabel) return;
+
+    const year = state.calendarDate.getFullYear();
+    const month = state.calendarDate.getMonth();
+
+    monthYearLabel.textContent = `${fullMonths[month]} ${year}`;
+
+    // Get first day of month (0 = Sunday, we want 1 = Monday as first column)
+    let firstDay = new Date(year, month, 1).getDay();
+    // Adjust for Monday start: 0(Sun) becomes 6, 1(Mon) becomes 0
+    firstDay = (firstDay === 0) ? 6 : firstDay - 1;
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+
+    let html = '';
+
+    // Empty cells for previous month
+    for (let i = 0; i < firstDay; i++) {
+      html += `<div class="calendar-day other-month"></div>`;
+    }
+
+    const allEvents = window.events || events;
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+      const dayEvents = allEvents.filter(e => e.date === dateStr);
+      
+      const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+      const hasEvent = dayEvents.length > 0;
+
+      let dotsHtml = '';
+      if (hasEvent) {
+        dotsHtml = `<div class="event-dots">` + 
+          dayEvents.slice(0, 3).map(e => `<span class="event-dot" style="background:${typeColors[e.type] || 'var(--accent-blue)'}"></span>`).join('') +
+          `</div>`;
+      }
+
+      html += `
+        <div class="calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}" 
+             data-date="${dateStr}">
+          ${day}
+          ${dotsHtml}
+        </div>`;
+    }
+
+    grid.innerHTML = html;
+
+    // Day clicks
+    grid.querySelectorAll('.calendar-day').forEach(el => {
+      if (el.classList.contains('other-month')) return;
+      el.addEventListener('click', () => {
+        grid.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('active'));
+        el.classList.add('active');
+        
+        const selectedDate = el.dataset.date;
+        const dayEvents = allEvents.filter(e => e.date === selectedDate);
+        
+        if (dayEvents.length > 0) {
+          detailsContainer.innerHTML = dayEvents.map(e => `
+            <div class="cal-detail-card" style="border-left-color: ${typeColors[e.type] || 'var(--accent-blue)'}">
+              <div class="cal-detail-info">
+                <h4>${e.title}</h4>
+                <p>${e.time} - ${e.location}</p>
+              </div>
+              <a href="event.html?id=${e.id}" class="cal-detail-btn">Detay</a>
+            </div>
+          `).join('');
+        } else {
+          detailsContainer.innerHTML = `<p class="empty-msg">${new Date(selectedDate).getDate()} ${fullMonths[new Date(selectedDate).getMonth()]} tarihinde etkinlik bulunmuyor.</p>`;
+        }
+      });
+    });
+  }
+
   // --- Countdown Logic ---
   function startCountdown() {
     const timerElement = document.getElementById('countdown-timer');
@@ -339,22 +410,21 @@ function safeLabel(url) {
 
     function update() {
       const now = new Date();
-      const nextMonday = new Date();
-      nextMonday.setDate(now.getDate() + ((1 + 7 - now.getDay()) % 7 || 7));
-      nextMonday.setHours(0, 0, 0, 0);
+      const nextUpdate = new Date();
+      nextUpdate.setDate(now.getDate() + 1);
+      nextUpdate.setHours(0, 0, 0, 0);
 
-      const diff = nextMonday - now;
+      const diff = nextUpdate - now;
       if (diff <= 0) {
         timerElement.textContent = "Güncelleniyor...";
         return;
       }
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const mins = Math.floor((diff / 1000 / 60) % 60);
       const secs = Math.floor((diff / 1000) % 60);
 
-      timerElement.textContent = `${days}g ${hours.toString().padStart(2, '0')}s ${mins.toString().padStart(2, '0')}d ${secs.toString().padStart(2, '0')}sn`;
+      timerElement.textContent = `${hours.toString().padStart(2, '0')}s ${mins.toString().padStart(2, '0')}d ${secs.toString().padStart(2, '0')}sn`;
     }
 
     update();
@@ -364,7 +434,95 @@ function safeLabel(url) {
   loadEvents().then(() => {
     init();
     startCountdown();
+    startNewsTimer();
   });
+  // Navigation & Sliding Indicator Logic
+  const navLinks = document.querySelectorAll('.nav-link');
+  const navIndicator = document.getElementById('nav-indicator');
+
+  function updateNavIndicator() {
+    const activeLink = document.querySelector('.nav-link.active');
+    if (activeLink && navIndicator) {
+      navIndicator.style.width = `${activeLink.offsetWidth}px`;
+      navIndicator.style.left = `${activeLink.offsetLeft}px`;
+    }
+  }
+
+  // Initial update
+  setTimeout(updateNavIndicator, 100);
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.dataset.target;
+      const targetEl = document.getElementById(targetId);
+      
+      if (targetEl) {
+        const headerOffset = 72; // Header height is 72px in CSS
+        const targetPosition = targetEl.offsetTop - headerOffset;
+
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+
+        // Update active state immediately for better feedback
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        updateNavIndicator();
+      }
+    });
+  });
+
+  // Scroll Spy to update active link on scroll
+  window.addEventListener('scroll', () => {
+    const sections = ['events-section', 'calendar-section', 'news-section', 'map-section'];
+    let current = '';
+    
+    const scrollPos = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+    const windowHeight = window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
+
+    // Check if we are at the bottom of the page
+    if (scrollPos + windowHeight >= docHeight - 50) {
+      current = 'map-section';
+    } else {
+      sections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) {
+          // If section is at least 100px from top, consider it active
+          if (scrollPos >= section.offsetTop - 100) {
+            current = id;
+          }
+        }
+      });
+    }
+
+    if (current) {
+      const targetLink = document.querySelector(`.nav-link[data-target="${current}"]`);
+      if (targetLink && !targetLink.classList.contains('active')) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        targetLink.classList.add('active');
+        updateNavIndicator();
+      }
+    }
+  });
+
+  // Back to Top Logic
+  const backToTopBtn = document.getElementById('back-to-top');
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 500) {
+        backToTopBtn.classList.add('show');
+      } else {
+        backToTopBtn.classList.remove('show');
+      }
+    });
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
   // Add card click navigation
   document.addEventListener('click', function(e) {
     const card = e.target.closest('.event-card');
@@ -372,4 +530,93 @@ function safeLabel(url) {
       window.location.href = card.dataset.url;
     }
   });
+
+  // Scroll Reveal Observer
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        // If it's a staggered grid, we might want to unobserve once revealed
+        if (entry.target.classList.contains('reveal')) {
+          revealObserver.unobserve(entry.target);
+        }
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  });
+
+  function observeReveals() {
+    document.querySelectorAll('.reveal:not(.revealed), .reveal-stagger:not(.revealed)').forEach(el => {
+      revealObserver.observe(el);
+    });
+  }
+
+  observeReveals();
+
+  // --- News Section ---
+  function renderNews() {
+    const newsGrid = document.getElementById('news-grid');
+    const viewAllLink = document.querySelector('.view-all-link');
+    if (!newsGrid || !window.news) return;
+
+    if (viewAllLink) viewAllLink.href = 'all_news.html';
+
+    const now = new Date();
+    const threeWeeksAgo = new Date();
+    threeWeeksAgo.setDate(now.getDate() - 21);
+
+    // Filter by date (last 3 weeks) and show max 6 on home
+    const filteredHomeNews = window.news
+      .filter(item => new Date(item.date) >= threeWeeksAgo)
+      .slice(0, 6);
+
+    if (filteredHomeNews.length === 0) {
+      newsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Son 3 haftaya ait güncel haber bulunamadı.</p>`;
+      return;
+    }
+
+    newsGrid.innerHTML = filteredHomeNews.map(item => `
+      <div class="news-card reveal" onclick="window.location.href='news.html?id=${item.id}'">
+        <img src="${item.images[0]}" class="news-card-img" alt="${item.title}">
+        <div class="news-card-content">
+          <div class="news-card-date">${item.date} | ${item.source}</div>
+          <h3 class="news-card-title">${item.title}</h3>
+          <p class="news-card-summary">${item.summary}</p>
+          <div class="news-card-footer">
+            <span>Devamını Oku →</span>
+            <span>📂 Blog</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // Observe newly created cards for reveal animation
+    newsGrid.querySelectorAll('.reveal').forEach(card => {
+      revealObserver.observe(card);
+    });
+  }
+
+  function startNewsTimer() {
+    const newsTimerEl = document.getElementById('news-timer');
+    if (!newsTimerEl) return;
+
+    function updateTimer() {
+      const now = new Date();
+      // Target is next even hour
+      const target = new Date();
+      target.setHours(now.getHours() + (2 - (now.getHours() % 2)), 0, 0, 0);
+
+      const diff = target - now;
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / 1000 / 60) % 60);
+      const secs = Math.floor((diff / 1000) % 60);
+
+      newsTimerEl.textContent = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  }
 });

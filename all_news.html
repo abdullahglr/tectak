@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TECTAK — Tüm Haberler</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header" id="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo-group">
+        <img src="grafikbirleşenleri/LOGO.png" alt="TECTAK Logo">
+        <span>TECTAK</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Ana Sayfa</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== ALL NEWS ===== -->
+  <main class="container" style="margin-top: 120px; padding-bottom: 60px;">
+    <h1 class="gradient-text" style="font-size: 2.5rem; margin-bottom: 40px; text-align: center;">Tüm Teknoloji Haberleri</h1>
+    <div class="news-grid" id="all-news-grid">
+      <!-- Loaded by JS -->
+    </div>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <p><span class="gradient-text">TECTAK</span> — Teknoloji Takvimi © 2026</p>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">Abdullah GÜLER tarafından geliştirilmiştir.</p>
+    </div>
+  </footer>
+
+  <script src="news_data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const grid = document.getElementById('all-news-grid');
+      if (grid && window.news) {
+        const now = new Date();
+        const threeWeeksAgo = new Date();
+        threeWeeksAgo.setDate(now.getDate() - 21);
+
+        // Filter by date (last 3 weeks) and limit to max 30
+        const filteredNews = window.news
+          .filter(item => new Date(item.date) >= threeWeeksAgo)
+          .slice(0, 30);
+
+        grid.innerHTML = filteredNews.map(item => `
+          <div class="news-card" onclick="window.location.href='news.html?id=${item.id}'">
+            <img src="${item.images[0]}" class="news-card-img" alt="${item.title}">
+            <div class="news-card-content">
+              <div class="news-card-date">${item.date} | ${item.source}</div>
+              <h3 class="news-card-title">${item.title}</h3>
+              <p class="news-card-summary">${item.summary}</p>
+              <div class="news-card-footer">
+                <span>Devamını Oku →</span>
+                <span>📂 Blog</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        if (filteredNews.length === 0) {
+          grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Son 3 haftaya ait haber bulunamadı.</p>`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

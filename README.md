@@ -2,17 +2,19 @@
 
 Türkiye'deki teknoloji, savunma sanayii, robotik ve bilişim dünyasından en güncel etkinliklerin, fuarların ve yarışmaların merkezi takip platformu.
 
-![TecTak Preview](grafikbirleşenleri/tanitim.webp)
 
 ## 🚀 Özellikler
 
 -   **🎯 Kapsamlı Veritabanı:** Türkiye genelindeki tüm büyük teknoloji ve savunma sanayii fuarlarını (TEKNOFEST, SAHA EXPO, IDEF, WIN EURASIA vb.) tek bir yerden takip edin.
 -   **🛡️ Savunma Sanayii Entegrasyonu:** Savunma sanayii etkinlikleri için özel kategori ve detaylı takip.
+-   **📅 Aylık İnteraktif Takvim:** Etkinlikleri aylık ızgara üzerinde görün, günlere tıklayarak o güne ait detaylara anında ulaşın.
+-   **📰 Teknoloji Haberleri & Blog:** En güncel teknoloji haberlerini takip edin, detaylı blog yazılarını okuyun ve sosyal medyada paylaşın.
 -   **📍 İnteraktif Harita:** Etkinlikleri Türkiye haritası üzerinde konumlarına göre keşfedin. Heatmap veya pin modları arasında geçiş yapın.
 -   **🟢 Başvuru Durum Yönetimi:** "Başvuruları Açık" ve "Başvuruları Kapanan" etkinlikleri anında ayırt edin.
 -   **🔍 Gelişmiş Filtreleme:** Arama, kategori ve Ücretli/Ücretsiz filtreleme seçenekleriyle aradığınız etkinliğe saniyeler içinde ulaşın.
--   **⏳ Canlı Geri Sayım:** Verilerin bir sonraki otomatik güncellenme zamanını canlı sayaçla takip edin.
--   **🤖 GitHub Actions Otomasyonu:** Her hafta otomatik olarak verileri yenileyen arka plan robotu.
+-   **⏳ Çift Canlı Sayaç:** Hem günlük genel güncelleme hem de 2 saatlik haber yenileme sayaçlarıyla platformun güncelliğini takip edin.
+-   **📱 Premium UI/UX:** Glassmorphism tasarımı, pürüzsüz kaydırma animasyonları, akıllı navigasyon göstergesi ve mobil uyumlu yapı.
+-   **🤖 GitHub Actions Otomasyonu:** Verileri otomatik olarak yenileyen arka plan altyapısı.
 
 ## 🛠️ Teknoloji Yığını
 

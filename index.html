@@ -38,11 +38,12 @@
           <span class="header-stat-label">Kategori</span>
         </div>
       </div>
-      <nav class="nav-links">
-        <button class="nav-link active"
-          onclick="document.getElementById('events-section').scrollIntoView({behavior:'smooth'})">Etkinlikler</button>
-        <button class="nav-link"
-          onclick="document.getElementById('map-section').scrollIntoView({behavior:'smooth'})">Harita</button>
+      <nav class="nav-links" id="main-nav">
+        <div class="nav-indicator" id="nav-indicator"></div>
+        <button class="nav-link active" data-target="events-section">Etkinlikler</button>
+        <button class="nav-link" data-target="calendar-section">Takvim</button>
+        <button class="nav-link" data-target="news-section">Haberler</button>
+        <button class="nav-link" data-target="map-section">Harita</button>
       </nav>
     </div>
   </header>
@@ -79,25 +80,65 @@
   </section>
 
   <!-- ===== CATEGORY TABS ===== -->
-  <section class="tabs-section">
+  <section class="tabs-section reveal">
     <div class="container">
       <div class="tabs-container" id="tabs-container"></div>
     </div>
   </section>
 
   <!-- ===== EVENTS ===== -->
-  <section class="events-section" id="events-section">
+  <section class="events-section reveal" id="events-section">
     <div class="container">
       <div class="events-header">
         <h2>Yaklaşan Etkinlikler</h2>
         <span class="events-count" id="events-count">0 etkinlik</span>
       </div>
-      <div class="events-grid" id="events-grid"></div>
+      <div class="events-grid reveal-stagger" id="events-grid"></div>
+    </div>
+  </section>
+
+  <!-- ===== CALENDAR ===== -->
+  <section class="calendar-section reveal" id="calendar-section">
+    <div class="container">
+      <div class="calendar-header">
+        <h2>Takvim Görünümü</h2>
+        <div class="calendar-nav">
+          <button id="prev-month" class="nav-btn-sm">&lt;</button>
+          <h3 id="current-month-year">Mayıs 2026</h3>
+          <button id="next-month" class="nav-btn-sm">&gt;</button>
+        </div>
+      </div>
+      <div class="calendar-wrapper">
+        <div class="calendar-days-header">
+          <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+      </div>
+      <div id="calendar-event-details" class="calendar-event-details">
+        <p class="empty-msg">Detayları görmek için takvimden bir güne tıklayın.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== NEWS ===== -->
+  <section class="news-section reveal" id="news-section">
+    <div class="container">
+      <div class="news-header">
+        <div class="news-title-group">
+          <h2>Teknoloji Haberleri</h2>
+          <div class="news-refresh-timer">
+            <span class="timer-icon">🔄</span>
+            Sonraki Güncelleme: <span id="news-timer">02:00:00</span>
+          </div>
+        </div>
+        <a href="#" class="view-all-link">Tüm Haberler →</a>
+      </div>
+      <div class="news-grid reveal-stagger" id="news-grid"></div>
     </div>
   </section>
 
   <!-- ===== MAP ===== -->
-  <section class="map-section" id="map-section">
+  <section class="map-section reveal" id="map-section">
     <div class="container">
       <h2>Harita Görünümü</h2>
       <p class="map-subtitle">Etkinliklerin Türkiye genelindeki dağılımını görüntüleyin</p>
@@ -119,10 +160,16 @@
     </div>
   </footer>
 
+  <!-- ===== BACK TO TOP ===== -->
+  <button id="back-to-top" class="back-to-top" title="Yukarı Çık">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
   <script src="data.js"></script>
+  <script src="news_data.js"></script>
   <script src="app.js"></script>
 </body>
 
