@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (entry.target.classList.contains('reveal')) revealObserver.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.01, rootMargin: '0px 0px 50px 0px' });
+  }, { threshold: 0, rootMargin: '0px 0px 200px 0px' });
 
   function observeReveals() {
     document.querySelectorAll('.reveal:not(.revealed), .reveal-stagger:not(.revealed)').forEach(el => revealObserver.observe(el));
