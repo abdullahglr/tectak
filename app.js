@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const catLabel = typeof categories !== 'undefined' ? (categories.find(c => c.id === event.category)?.label || event.category) : event.category;
       const catIcon = typeof categories !== 'undefined' ? (categories.find(c => c.id === event.category)?.icon || '') : '';
 
-      return `<div class="event-card" style="animation-delay:${i * 0.06}s; ${isClosed ? 'opacity:0.6;' : ''}"
+      return `<div class="event-card reveal" style="animation-delay:${i * 0.06}s; ${isClosed ? 'opacity:0.6;' : ''}"
                    data-id="${event.id}" data-url="event.html?id=${event.id}">
         <div class="event-date-block">
           <div class="event-day">${day}</div>
@@ -225,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
       html += closedEvents.map((e, i) => renderCard(e, i, true)).join('');
     }
     eventsGrid.innerHTML = html;
+    observeReveals();
   }
 
   // --- Stats ---
@@ -525,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (entry.target.classList.contains('reveal')) revealObserver.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  }, { threshold: 0.01, rootMargin: '0px 0px 50px 0px' });
 
   function observeReveals() {
     document.querySelectorAll('.reveal:not(.revealed), .reveal-stagger:not(.revealed)').forEach(el => revealObserver.observe(el));

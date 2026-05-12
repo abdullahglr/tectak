@@ -633,6 +633,11 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
   .mobile-nav-item.active .m-nav-icon { transform: scale(1.1); }
   
   .footer { padding-bottom: 100px; } /* Space for bottom nav */
+
+  /* Speed up animations for mobile */
+  .reveal, .reveal-stagger > * {
+    transition-duration: 0.4s !important;
+  }
 }
 
 @media (max-width: 600px) {
