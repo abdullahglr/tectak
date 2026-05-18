@@ -169,7 +169,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const eventId = parseInt(urlParams.get('id'));
       
-      const eventDataList = window.events || events;
+      const eventDataList = window.events || (typeof events !== 'undefined' ? events : []);
       const event = eventDataList.find(e => e.id === eventId);
       
       const backLink = document.getElementById('back-link');

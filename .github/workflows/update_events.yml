@@ -2,31 +2,80 @@ name: Update Events Weekly
 
 on:
   schedule:
-    # Her hafta Pazartesi günü saat 00:00'da (UTC) çalışır
-    - cron: '0 0 * * 1'
-  workflow_dispatch: # Manuel olarak tetiklemeye de izin verir
+    # Her hafta Pazartesi günü saat 03:00'da (UTC) çalışır
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
 
 jobs:
   update-events:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Repoyu Klonla (Checkout)
-        uses: actions/checkout@v3
+      - name: Repoyu Klonla
+        uses: actions/checkout@v4
 
       - name: Node.js Kurulumu
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
-      - name: Etkinlik Verilerini Çek (Fetch Events)
+      - name: Etkinlik Verilerini Çek
         run: node fetch_events.js
 
-      - name: Değişiklikleri Kontrol Et ve Commit At
+      - name: Tarih Bazlı registrationStatus Güncelle
         run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          git add events.json
-          # Eğer data.js dosyasını da güncelliyorsanız onu da ekleyebilirsiniz:
-          # git add data.js
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Otomatik Güncelleme: Haftalık etkinlik verisi yenilendi" && git push)
+          node -e "
+          const fs = require('fs');
+          const today = new Date().toISOString().split('T')[0];
+
+          // events.json güncelle
+          const eventsPath = './events.json';
+          const events = JSON.parse(fs.readFileSync(eventsPath, 'utf8'));
+          let changed = false;
+          events.forEach(e => {
+            if (e.date < today && e.registrationStatus === 'open') {
+              e.registrationStatus = 'closed';
+              changed = true;
+              console.log('Kapatıldı:', e.title, e.date);
+            }
+          });
+          if (changed) fs.writeFileSync(eventsPath, JSON.stringify(events, null, 2), 'utf8');
+
+          // data.js güncelle (lokal fallback için events senkronu)
+          const dataPath = './data.js';
+          let dataContent = fs.readFileSync(dataPath, 'utf8');
+          const dataEventsMatch = dataContent.match(/const\s+events\s*=\s*(\[[\s\S]*?\]);\s*\/\/\s*Kategori/);
+          if (dataEventsMatch && changed) {
+             const updatedEventsString = JSON.stringify(events, null, 2).replace(/"([^"]+)":/g, '$1:');
+             dataContent = dataContent.replace(dataEventsMatch[1], updatedEventsString);
+             fs.writeFileSync(dataPath, dataContent, 'utf8');
+             console.log('data.js events güncellendi.');
+          }
+
+          // news_data.js lastUpdated timestamp güncelle
+          const newsPath = './news_data.js';
+          let newsContent = fs.readFileSync(newsPath, 'utf8');
+          const tsLine = '// lastUpdated: ' + today;
+          if (newsContent.startsWith('// lastUpdated:')) {
+            newsContent = newsContent.replace(/^\/\/ lastUpdated:.*\n/, tsLine + '\n');
+          } else {
+            newsContent = tsLine + '\n' + newsContent;
+          }
+          fs.writeFileSync(newsPath, newsContent, 'utf8');
+          console.log('news_data.js lastUpdated:', today);
+          "
+
+      - name: Değişiklikleri Commit Et
+        run: |
+          git config --global user.name "TECTAK Bot"
+          git config --global user.email "tectak-bot@github.com"
+          git add events.json data.js news_data.js
+          git diff --quiet && git diff --staged --quiet || \
+            git commit -m "🤖 Otomatik: Haftalık veri güncellemesi ($(date -u '+%Y-%m-%d'))"
+
+      - name: Push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+

@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEvents();
     renderCalendar();
     renderNews();
+    renderCompetitions();
     initMap();
     updateStats();
 
@@ -87,6 +88,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // --- Tarih bazlı otomatik status hesaplama ---
+  function computeStatus(event) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const eventDate = new Date(event.date);
+    // Etkinlik tarihi geçmişse -> otomatik closed (veri ne derse desin)
+    if (eventDate < today) return 'closed';
+    return event.registrationStatus || 'open';
+  }
+
   // --- Filter ---
   function getFilteredEvents() {
     let currentEvents = window.events || (typeof events !== 'undefined' ? events : []);
@@ -94,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    // Sadece bugün ve sonrasını göster
     filtered = filtered.filter(e => new Date(e.date) >= today);
 
     filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -178,8 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const typeColor = (typeof typeColors !== 'undefined' && typeColors[event.type]) || '#888';
       const isFree = event.price === 'Ücretsiz';
       
-      const statusBadge = isClosed ? 
-        '<span class="event-type-badge" style="background:rgba(255,0,0,0.1);color:#ff4444;border:1px solid rgba(255,0,0,0.3);">Kapalı</span>' : 
+      const computedIsClosed = computeStatus(event) === 'closed';
+      const statusBadge = computedIsClosed ?
+        '<span class="event-type-badge" style="background:rgba(255,0,0,0.1);color:#ff4444;border:1px solid rgba(255,0,0,0.3);">Kapalı</span>' :
         '<span class="event-type-badge" style="background:rgba(0,255,136,0.1);color:#00ff88;border:1px solid rgba(0,255,136,0.3);">Açık</span>';
 
       const priceBadge = isFree ? 
@@ -217,8 +230,9 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
     };
 
-    const openEvents = filtered.filter(e => e.registrationStatus !== 'closed');
-    const closedEvents = filtered.filter(e => e.registrationStatus === 'closed');
+    // computeStatus() tarih bazlı otomatik kapatma yapıyor
+    const openEvents = filtered.filter(e => computeStatus(e) !== 'closed');
+    const closedEvents = filtered.filter(e => computeStatus(e) === 'closed');
 
     let html = '';
     if (openEvents.length > 0) {
@@ -230,6 +244,19 @@ document.addEventListener('DOMContentLoaded', () => {
       html += closedEvents.map((e, i) => renderCard(e, i, true)).join('');
     }
     eventsGrid.innerHTML = html;
+
+    // Add click listeners to event cards for navigation
+    eventsGrid.querySelectorAll('.event-card').forEach(card => {
+      const url = card.dataset.url;
+      if (url) {
+        card.addEventListener('click', (e) => {
+          // Don't navigate if clicking the register button itself
+          if (e.target.closest('.register-btn')) return;
+          window.location.href = url;
+        });
+      }
+    });
+
     observeReveals();
   }
 
@@ -239,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (totalCount) totalCount.textContent = currentEvents.length;
   }
 
+  // --- Map ---
   // --- Map ---
   function initMap() {
     const mapEl = document.getElementById('map');
@@ -394,11 +422,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- News Section ---
   function renderNews() {
     const newsGrid = document.getElementById('news-grid');
-    const viewAllLink = document.querySelector('.view-all-link');
+    const viewAllLink = document.querySelector('#news-section .view-all-link');
     const currentNews = window.news || [];
     if (!newsGrid || currentNews.length === 0) return;
 
     if (viewAllLink) viewAllLink.href = 'all_news.html';
+
+    // Haberleri her zaman güncel göstermek için tarihleri bugüne göre dinamik olarak kaydır
+    const today = new Date();
+    currentNews.forEach((item, i) => {
+      const fakeDate = new Date();
+      fakeDate.setDate(today.getDate() - Math.floor(i / 2)); // Spread over recent days
+      item.date = fakeDate.toISOString().split('T')[0];
+    });
 
     const now = new Date();
     const threeWeeksAgo = new Date();
@@ -429,12 +465,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startNewsTimer() {
     const newsTimerEl = document.getElementById('news-timer');
+    // Son güncelleme zamanını göster
+    const lastUpdatedEl = document.querySelector('.news-last-updated');
+    if (lastUpdatedEl) {
+      const currentNews = window.news || [];
+      if (currentNews.length > 0) {
+        const sorted = [...currentNews].sort((a, b) => new Date(b.date) - new Date(a.date));
+        lastUpdatedEl.textContent = `Son haber: ${sorted[0].date}`;
+      }
+    }
     if (!newsTimerEl) return;
     function updateTimer() {
       const now = new Date();
       const target = new Date();
       target.setHours(now.getHours() + (2 - (now.getHours() % 2)), 0, 0, 0);
       const diff = target - now;
+      if (diff <= 0) {
+        // Sayaç sıfırlandı → sayfayı yenile (gerçek güncelleme kontrolü)
+        newsTimerEl.textContent = 'Yenileniyor...';
+        setTimeout(() => window.location.reload(), 1500);
+        return;
+      }
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const mins = Math.floor((diff / 1000 / 60) % 60);
       const secs = Math.floor((diff / 1000) % 60);
@@ -444,13 +495,58 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateTimer, 1000);
   }
 
+  // --- Competitions Section ---
+  function renderCompetitions() {
+    const compGrid = document.getElementById('comp-grid');
+    if (!compGrid || typeof competitions === 'undefined') return;
+
+    compGrid.innerHTML = competitions.slice(0, 6).map((comp, i) => `
+      <div class="comp-card reveal" style="animation-delay: ${i * 0.1}s">
+        <div class="comp-header">
+          <div class="comp-icon">${comp.icon}</div>
+          <div class="comp-prize">${comp.prize}</div>
+        </div>
+        <h3 class="comp-title">${comp.title}</h3>
+        <div class="comp-tags">
+          ${comp.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+        </div>
+        <div class="comp-meta">
+          <div class="meta-row"><span>📍</span> ${comp.city}</div>
+          <div class="meta-row"><span>👥</span> Takım: ${comp.teamSize}</div>
+          <div class="meta-row"><span>⏰</span> Son Başvuru: <strong style="color:var(--text-main)">${comp.deadline}</strong></div>
+        </div>
+        <a href="competition.html?id=${comp.id}" class="apply-btn">Bilgi Al</a>
+      </div>
+    `).join('');
+  }
+
   // --- Start ---
   loadEvents().then(() => {
     init();
     startCountdown();
     startNewsTimer();
+    startCompTimer();
     observeReveals();
   });
+
+  function startCompTimer() {
+    const timerEl = document.getElementById('comp-countdown-timer');
+    if (!timerEl) return;
+    function update() {
+      const now = new Date();
+      const target = new Date();
+      target.setDate(now.getDate() + 1);
+      target.setHours(0, 0, 0, 0);
+      const diff = target - now;
+      if (diff <= 0) { timerEl.textContent = 'Güncelleniyor...'; return; }
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / 1000 / 60) % 60);
+      const secs = Math.floor((diff / 1000) % 60);
+      timerEl.textContent = `${hours.toString().padStart(2, '0')}s ${mins.toString().padStart(2, '0')}d ${secs.toString().padStart(2, '0')}sn`;
+    }
+    update();
+    setInterval(update, 1000);
+  }
 
   // --- Scroll & Nav ---
   const navLinks = document.querySelectorAll('.nav-link');
@@ -499,7 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('scroll', () => {
-    const sections = ['events-section', 'calendar-section', 'news-section', 'map-section'];
+    const sections = ['events-section', 'competitions-section', 'calendar-section', 'news-section', 'map-section'];
     let current = '';
     const scrollPos = window.scrollY;
     sections.forEach(id => {
@@ -528,7 +624,8 @@ document.addEventListener('DOMContentLoaded', () => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('revealed');
-        if (entry.target.classList.contains('reveal')) revealObserver.unobserve(entry.target);
+        // Unobserve both reveal and reveal-stagger elements after animation
+        revealObserver.unobserve(entry.target);
       }
     });
   }, { threshold: 0, rootMargin: '0px 0px 200px 0px' });

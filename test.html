@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TECTAK 3D Deneyimi & Yarışmalar</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts for Modern Typography -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-panel: rgba(20, 20, 25, 0.8);
+      --accent-primary: #00ff88;
+      --accent-secondary: #00d4ff;
+      --accent-tertiary: #ff007f;
+      --text-main: #ffffff;
+      --text-muted: #8892b0;
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 15% 50%, rgba(0, 255, 136, 0.05), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(0, 212, 255, 0.05), transparent 25%);
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    header {
+      padding: 2rem;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+      position: relative;
+      z-index: 100;
+    }
+
+    .title-gradient {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    /* 3D Map Container */
+    .map-container-3d {
+      perspective: 1500px;
+      padding: 4rem 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 80vh;
+      overflow: hidden;
+    }
+
+    .map-wrapper {
+      width: 90%;
+      max-width: 1200px;
+      height: 600px;
+      transform: rotateX(55deg) rotateZ(-25deg);
+      transform-style: preserve-3d;
+      border-radius: 20px;
+      transition: transform 0.3s ease-out;
+      position: relative;
+      cursor: grab;
+    }
+
+    .map-wrapper:active {
+      cursor: grabbing;
+    }
+
+    .map-layer {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .map-layer-1 { transform: translateZ(-10px); background: rgba(26,26,36,0.9); }
+    .map-layer-2 { transform: translateZ(-20px); background: rgba(20,20,29,0.9); }
+    .map-layer-3 { transform: translateZ(-30px); background: rgba(10,10,15,0.9); box-shadow: -40px 40px 80px rgba(0,0,0,1), 0 0 30px var(--accent-primary); }
+
+    #map3d {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      filter: saturate(1.2) contrast(1.1);
+      border: 2px solid var(--accent-primary);
+      box-shadow: inset 0 0 50px rgba(0,255,136,0.2);
+      transform-style: preserve-3d;
+    }
+
+    .leaflet-pane,
+    .leaflet-map-pane,
+    .leaflet-marker-pane,
+    .leaflet-marker-icon {
+      transform-style: preserve-3d !important;
+    }
+
+    .marker-3d {
+      width: 0;
+      height: 0;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .build-layer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 20px;
+      height: 20px;
+      background: rgba(0, 255, 136, 0.2);
+      border: 1px solid rgba(0, 255, 136, 0.5);
+      transform: translate(-10px, -10px);
+    }
+
+    .build-layer.top-cap {
+      background: #00ff88;
+      box-shadow: 0 0 15px #00ff88;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: #0a0a0f;
+    }
+
+    .building-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      transform: rotateX(-90deg);
+      transform-origin: bottom center;
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+
+    .building-3d {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      transform-style: preserve-3d;
+    }
+
+    /* Side Panel */
+    .side-panel {
+      position: fixed;
+      right: -450px;
+      top: 100px;
+      width: 400px;
+      height: calc(100vh - 120px);
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px 0 0 20px;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .side-panel.open {
+      right: 0;
+    }
+
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 255, 136, 0.1);
+    }
+
+    .panel-header h2 {
+      font-size: 1.5rem;
+      color: var(--accent-primary);
+    }
+
+    .panel-close {
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      transition: 0.3s;
+    }
+
+    .panel-close:hover {
+      color: var(--accent-tertiary);
+      transform: scale(1.2);
+    }
+
+    .panel-content {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .panel-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 15px;
+      transition: 0.3s;
+    }
+
+    .panel-card:hover {
+      border-color: var(--accent-primary);
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .panel-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .panel-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    /* SVG Overlay */
+    #svg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .connector-line {
+      fill: none;
+      stroke: var(--accent-primary);
+      stroke-width: 2;
+      stroke-dasharray: 6, 6;
+      animation: dash 20s linear infinite;
+      filter: drop-shadow(0 0 5px var(--accent-primary));
+      transition: d 0.1s ease-out;
+    }
+
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -1000;
+      }
+    }
+
+    /* Competitions Section */
+    .competitions-section {
+      padding: 4rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .section-title::before,
+    .section-title::after {
+      content: '';
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-secondary), transparent);
+      flex: 1;
+      max-width: 200px;
+    }
+
+    .comp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    .comp-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .comp-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-secondary), var(--accent-tertiary));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .comp-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent-secondary);
+      box-shadow: 0 15px 30px rgba(0, 212, 255, 0.15);
+    }
+
+    .comp-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .comp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .comp-icon {
+      font-size: 2.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 12px;
+    }
+
+    .comp-prize {
+      color: var(--accent-primary);
+      font-weight: 800;
+      font-size: 1.2rem;
+      background: rgba(0, 255, 136, 0.1);
+      padding: 5px 10px;
+      border-radius: 20px;
+    }
+
+    .comp-title {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+
+    .comp-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ddd;
+    }
+
+    .comp-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .apply-btn {
+      display: inline-block;
+      width: 100%;
+      padding: 12px;
+      text-align: center;
+      background: transparent;
+      border: 2px solid var(--accent-secondary);
+      color: var(--accent-secondary);
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .apply-btn:hover {
+      background: var(--accent-secondary);
+      color: #000;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .back-nav {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border-radius: 30px;
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      text-decoration: none;
+      backdrop-filter: blur(5px);
+      transition: 0.3s;
+    }
+
+    .back-nav:hover {
+      background: var(--accent-secondary);
+      color: #000;
+    }
+  </style>
+</head>
+
+<body>
+
+  <a href="index.html" class="back-nav">← Anasayfaya Dön</a>
+
+  <header>
+    <h1 class="title-gradient">TECTAK 3D Deneyimi</h1>
+    <p style="color: var(--text-muted); margin-top: 10px; font-size: 1.2rem;">Geleceğin Etkinlik Haritası</p>
+  </header>
+
+  <!-- 3D Map Section -->
+  <section class="map-container-3d">
+    <div class="map-wrapper" id="mapWrapper">
+      <div class="map-layer map-layer-3"></div>
+      <div class="map-layer map-layer-2"></div>
+      <div class="map-layer map-layer-1"></div>
+      <div id="map3d"></div>
+    </div>
+  </section>
+
+  <!-- SVG Overlay for connecting line -->
+  <svg id="svg-overlay">
+    <path id="connector-path" class="connector-line" d=""></path>
+  </svg>
+
+  <!-- Side Panel for details -->
+  <div class="side-panel" id="side-panel">
+    <div class="panel-header">
+      <h2 id="panel-title">Şehir Detayları</h2>
+      <button class="panel-close" id="panel-close">✖</button>
+    </div>
+    <div class="panel-content" id="panel-content">
+      <!-- Cards will be populated here -->
+    </div>
+  </div>
+
+  <!-- Competitions Section -->
+  <section class="competitions-section">
+    <h2 class="section-title">Yaklaşan Yarışmalar</h2>
+    <div class="comp-grid" id="compGrid">
+      <!-- Yarışmalar JS ile yüklenecek -->
+    </div>
+  </section>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Data -->
+  <script src="data.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize 3D Map
+      const map = L.map('map3d', {
+        zoomControl: false,
+        scrollWheelZoom: false,
+        dragging: false
+      }).setView([39.0, 35.0], 5);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© CARTO'
+      }).addTo(map);
+
+      let activeMarker = null;
+      let activeIconEl = null;
+      const svgPath = document.getElementById('connector-path');
+      const sidePanel = document.getElementById('side-panel');
+      const panelTitle = document.getElementById('panel-title');
+      const panelContent = document.getElementById('panel-content');
+
+      document.getElementById('panel-close').addEventListener('click', () => {
+        sidePanel.classList.remove('open');
+        svgPath.setAttribute('d', '');
+        if (activeIconEl) activeIconEl.classList.remove('active');
+        activeMarker = null;
+        activeIconEl = null;
+      });
+
+      function openPanel(city) {
+        sidePanel.classList.add('open');
+        panelTitle.textContent = city + ' Etkinlikleri';
+
+        const cityEvents = typeof events !== 'undefined' ? events.filter(ev => ev.city === city) : [];
+        const cityComps = typeof competitions !== 'undefined' ? competitions.filter(c => c.city === city) : [];
+
+        let html = '';
+        cityEvents.forEach(ev => {
+          html += `
+            <div class="panel-card" style="display:flex; gap:15px; align-items:center;">
+              <div style="width:60px; height:60px; border-radius:10px; background:rgba(0,255,136,0.1); display:flex; justify-content:center; align-items:center; font-size:2rem; flex-shrink:0;">
+                🎯
+              </div>
+              <div style="flex:1;">
+                <h3 style="color:var(--accent-primary); margin:0 0 5px 0;">${ev.title}</h3>
+                <p style="margin:0 0 5px 0;">📅 ${ev.date}</p>
+                <a href="event.html?id=${ev.id}" style="color:var(--text-main); font-size:0.85rem; font-weight:bold; text-decoration:none;">Detay Gör →</a>
+              </div>
+            </div>
+          `;
+        });
+        cityComps.forEach(comp => {
+          html += `
+            <div class="panel-card" style="display:flex; gap:15px; align-items:center; border-color:var(--accent-secondary);">
+              <div style="width:60px; height:60px; border-radius:10px; background:rgba(0,212,255,0.1); display:flex; justify-content:center; align-items:center; font-size:2rem; flex-shrink:0;">
+                🏆
+              </div>
+              <div style="flex:1;">
+                <h3 style="color:var(--accent-secondary); margin:0 0 5px 0;">${comp.title}</h3>
+                <p style="margin:0 0 5px 0;">⏰ Son Başvuru: ${comp.deadline}</p>
+                <a href="competition.html?id=${comp.id}" style="color:var(--text-main); font-size:0.85rem; font-weight:bold; text-decoration:none;">Bilgi Al →</a>
+              </div>
+            </div>
+          `;
+        });
+
+        if (html === '') html = '<p style="color:var(--text-muted);">Bu şehirde planlanan etkinlik bulunamadı.</p>';
+        panelContent.innerHTML = html;
+      }
+
+      function updateLine() {
+        if (!activeMarker || !sidePanel.classList.contains('open')) {
+          svgPath.setAttribute('d', '');
+          return;
+        }
+
+        const icon = activeMarker._icon;
+        if (!icon) return;
+
+        const rect = icon.getBoundingClientRect();
+        // Calculate building top center
+        const startX = rect.left + rect.width / 2;
+        const startY = rect.top;
+
+        const panelRect = sidePanel.getBoundingClientRect();
+        // Target a bit lower than the top of the panel
+        const endX = panelRect.left;
+        const endY = panelRect.top + 80;
+
+        // Draw elegant curve
+        const d = `M ${startX} ${startY} C ${startX + 150} ${startY - 50}, ${endX - 150} ${endY}, ${endX} ${endY}`;
+        svgPath.setAttribute('d', d);
+      }
+
+      // Add events to map as 3D markers
+      if (typeof events !== 'undefined') {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        
+        // Group events by city to avoid stacking buildings exactly on top of each other
+        const cityMap = {};
+        events.forEach(ev => { if(new Date(ev.date) >= today) { if(!cityMap[ev.city]) cityMap[ev.city] = []; cityMap[ev.city].push(ev); } });
+        
+        Object.keys(cityMap).forEach(city => {
+          const cityEvents = cityMap[city];
+          const firstEvent = cityEvents[0];
+          // Determine height (number of layers) based on number of events
+          const layerCount = Math.min(30, 10 + (cityEvents.length - 1) * 5);
+          const day = new Date(firstEvent.date).getDate();
+          
+          let layersHtml = '';
+          for(let i = 0; i < layerCount; i++) {
+            layersHtml += `<div class="build-layer" style="transform: translate3d(-10px, -10px, ${i * 2}px); opacity: ${0.3 + (i/layerCount)*0.7};"></div>`;
+          }
+          // Add top cap
+          layersHtml += `<div class="build-layer top-cap" style="transform: translate3d(-10px, -10px, ${layerCount * 2}px);">${cityEvents.length > 1 ? cityEvents.length + '+' : day}</div>`;
+          
+          const customIcon = L.divIcon({
+            className: 'marker-3d',
+            html: `
+              <div class="building-wrap">
+                <div class="building-3d">
+                  ${layersHtml}
+                </div>
+              </div>
+            `,
+            iconSize: [0, 0]
+          });
+
+          const marker = L.marker([firstEvent.lat, firstEvent.lng], {icon: customIcon}).addTo(map);
+          
+          marker.on('click', (e) => {
+            if(activeIconEl) activeIconEl.classList.remove('active');
+            activeMarker = marker;
+            activeIconEl = marker._icon.querySelector('.building-wrap');
+            activeIconEl.classList.add('active');
+            openPanel(city);
+            requestAnimationFrame(updateLine);
+          });
+        });
+      }
+
+      // Parallax effect on mouse move over the map container
+      const container = document.querySelector('.map-container-3d');
+      const wrapper = document.getElementById('mapWrapper');
+      
+      let isDragging = false;
+      let previousMousePosition = { x: 0, y: 0 };
+      let rotX = 55;
+      let rotZ = -25;
+      let scale = 1;
+
+      function updateTransform() {
+        rotX = Math.max(0, Math.min(rotX, 85)); // limit pitch
+        scale = Math.max(0.5, Math.min(scale, 3.5)); // limit zoom
+        
+        wrapper.style.transform = `scale(${scale}) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+        requestAnimationFrame(updateLine);
+      }
+
+      container.addEventListener('mousedown', (e) => {
+        // ignore clicks on buildings to allow panel opening
+        if(e.target.closest('.building-wrap') || e.target.closest('.side-panel')) return; 
+        
+        isDragging = true;
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+        wrapper.style.transition = 'none'; // disable transition during drag for smoothness
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+        wrapper.style.transition = 'transform 0.3s ease-out';
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        const deltaMove = {
+          x: e.clientX - previousMousePosition.x,
+          y: e.clientY - previousMousePosition.y
+        };
+
+        rotZ += deltaMove.x * 0.4;
+        rotX -= deltaMove.y * 0.4;
+
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+        updateTransform();
+      });
+
+      container.addEventListener('wheel', (e) => {
+        // Only zoom if hovering map container, to prevent entire page scroll jumping
+        if(!e.target.closest('.map-container-3d')) return;
+        
+        e.preventDefault();
+        scale += e.deltaY * -0.002;
+        wrapper.style.transition = 'transform 0.1s ease-out';
+        updateTransform();
+        
+        // Reset transition after wheel stops
+        clearTimeout(window.wheelTimeout);
+        window.wheelTimeout = setTimeout(() => {
+          wrapper.style.transition = 'transform 0.3s ease-out';
+        }, 150);
+      }, { passive: false });
+      
+      window.addEventListener('resize', () => requestAnimationFrame(updateLine));
+      window.addEventListener('scroll', () => requestAnimationFrame(updateLine));
+
+      // 2. Render Competitions
+      const compGrid = document.getElementById('compGrid');
+      if (typeof competitions !== 'undefined') {
+        compGrid.innerHTML = competitions.map((comp, i) => `
+          <div class="comp-card" style="animation-delay: ${i * 0.1}s">
+            <div class="comp-header">
+              <div class="comp-icon">${comp.icon}</div>
+              <div class="comp-prize">${comp.prize}</div>
+            </div>
+            <h3 class="comp-title">${comp.title}</h3>
+            <div class="comp-tags">
+              ${comp.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+            <p style="color: #aaa; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5;">${comp.description}</p>
+            <div class="comp-meta">
+              <div class="meta-row"><span>📍</span> ${comp.city}</div>
+              <div class="meta-row"><span>👥</span> Takım: ${comp.teamSize}</div>
+              <div class="meta-row"><span>⏰</span> Son Başvuru: <strong style="color:var(--text-main)">${comp.deadline}</strong></div>
+            </div>
+            <a href="${comp.registrationUrl}" target="_blank" class="apply-btn">Başvur</a>
+          </div>
+        `).join('');
+      }
+    });
+  </script>
+</body>
+
+</html>

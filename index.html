@@ -13,9 +13,74 @@
 
   <!-- App CSS -->
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Animation Styles & Global Overrides -->
+  <style>
+    .anim-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 150px;
+      height: 150px;
+      z-index: 1000;
+      pointer-events: auto;
+      cursor: pointer;
+      background: rgba(11, 25, 44, 0.8);
+      border-radius: 50%;
+      border: 2px solid #00ffcc;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Custom Animations for User Request */
+    @keyframes breathOut {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.5; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+    
+    @keyframes bounceIn {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      60% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      80% { transform: translate(-50%, -50%) scale(0.9); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
+    
+    @keyframes bounceOut {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    }
+    
+    @keyframes breathIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    #animation-canvas {
+      height: 100%;
+      width: 100%;
+      display: block;
+    }
+    .map-section.fullscreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #030811;
+      padding: 40px 20px 20px 20px;
+      overflow: hidden;
+    }
+    .map-section.fullscreen .map-wrapper {
+      height: calc(100% - 100px);
+    }
+  </style>
 </head>
 
 <body>
+
+  <!-- 3D BACKGROUND -->
+  <div class="anim-container" id="anim-hero-container">
+    <canvas id="animation-canvas"></canvas>
+  </div>
 
   <!-- ===== HEADER ===== -->
   <header class="header" id="header">
@@ -34,13 +99,14 @@
           <span class="header-stat-label">Şehir</span>
         </div>
         <div class="header-stat">
-          <span class="header-stat-value">4</span>
+          <span class="header-stat-value">5</span>
           <span class="header-stat-label">Kategori</span>
         </div>
       </div>
       <nav class="nav-links" id="main-nav">
         <div class="nav-indicator" id="nav-indicator"></div>
         <button class="nav-link active" data-target="events-section">Etkinlikler</button>
+        <button class="nav-link" data-target="competitions-section">Yarışmalar</button>
         <button class="nav-link" data-target="calendar-section">Takvim</button>
         <button class="nav-link" data-target="news-section">Haberler</button>
         <button class="nav-link" data-target="map-section">Harita</button>
@@ -97,6 +163,24 @@
     </div>
   </section>
 
+  <!-- ===== COMPETITIONS ===== -->
+  <section class="competitions-section reveal" id="competitions-section">
+    <div class="container">
+      <div class="competitions-header">
+        <div class="comp-title-group">
+          <h2>Yaklaşan Yarışmalar</h2>
+          <div class="comp-refresh-timer">
+            <span class="timer-icon">🔄</span>
+            Canli Takip | Sonraki Güncelleme: <span id="comp-countdown-timer"
+              style="color:var(--accent-green);font-weight:bold;">Yükleniyor...</span>
+          </div>
+        </div>
+        <a href="all_competitions.html" class="view-all-link">Tüm Yarışmalar →</a>
+      </div>
+      <div class="comp-grid reveal-stagger" id="comp-grid"></div>
+    </div>
+  </section>
+
   <!-- ===== CALENDAR ===== -->
   <section class="calendar-section reveal" id="calendar-section">
     <div class="container">
@@ -130,8 +214,12 @@
             <span class="timer-icon">🔄</span>
             Sonraki Güncelleme: <span id="news-timer">02:00:00</span>
           </div>
+          <div class="news-refresh-timer" style="font-size:0.7rem; color: var(--text-muted);">
+            <span class="timer-icon">📅</span>
+            <span class="news-last-updated">Yükleniyor...</span>
+          </div>
         </div>
-        <a href="#" class="view-all-link">Tüm Haberler →</a>
+        <a href="all_news.html" class="view-all-link">Tüm Haberler →</a>
       </div>
       <div class="news-grid reveal-stagger" id="news-grid"></div>
     </div>
@@ -145,6 +233,7 @@
       <div class="map-toggle-group">
         <button class="map-toggle active" data-mode="pins">📍 Konum Pinleri</button>
         <button class="map-toggle" data-mode="heat">🔥 Isı Haritası</button>
+        <button class="map-toggle" id="3d-map-trigger">🌐 3D Harita</button>
       </div>
       <div class="map-wrapper">
         <div id="map"></div>
@@ -155,9 +244,13 @@
   <!-- ===== FOOTER ===== -->
   <footer class="footer">
     <div class="container">
-      <p><a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank" style="text-decoration:none; color:inherit;"><span class="gradient-text">TECTAK</span></a> — Teknoloji Takvimi © 2026</p>
+      <p><a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank"
+          style="text-decoration:none; color:inherit;"><span class="gradient-text">TECTAK</span></a> — Teknoloji Takvimi
+        © 2026</p>
       <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
-        <a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank" style="color:var(--accent-blue); text-decoration:none; font-weight:700;">Abdullah GÜLER</a> tarafından geliştirilmiştir.
+        <a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank"
+          style="color:var(--accent-blue); text-decoration:none; font-weight:700;">Abdullah GÜLER</a> tarafından
+        geliştirilmiştir.
       </p>
     </div>
   </footer>
@@ -167,6 +260,10 @@
     <button class="mobile-nav-item active" data-target="events-section">
       <span class="m-nav-icon">🎯</span>
       <span class="m-nav-label">Etkinlikler</span>
+    </button>
+    <button class="mobile-nav-item" data-target="competitions-section">
+      <span class="m-nav-icon">🏆</span>
+      <span class="m-nav-label">Yarışma</span>
     </button>
     <button class="mobile-nav-item" data-target="calendar-section">
       <span class="m-nav-icon">📅</span>
@@ -188,6 +285,232 @@
   <script src="data.js"></script>
   <script src="news_data.js"></script>
   <script src="app.js"></script>
+  
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <!-- ANIMATION SCRIPT -->
+  <script>
+    (function() {
+      const canvas = document.getElementById('animation-canvas');
+      const container = document.getElementById('anim-hero-container');
+      
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+      
+      const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(150, 150);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Create a particle globe
+      const geometry = new THREE.SphereGeometry(1.5, 64, 64);
+      const material = new THREE.PointsMaterial({
+        color: 0x00ffcc,
+        size: 0.015,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+      });
+      
+      const points = new THREE.Points(geometry, material);
+      scene.add(points);
+
+      // Add a wireframe sphere inside for more depth
+      const innerGeom = new THREE.SphereGeometry(1.48, 32, 32);
+      const innerMat = new THREE.MeshBasicMaterial({
+        color: 0x0055ff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.2
+      });
+      const innerMesh = new THREE.Mesh(innerGeom, innerMat);
+      scene.add(innerMesh);
+
+      camera.position.z = 3;
+
+      // Animation
+      let scrollRotation = 0;
+      let lastScrollTop = 0;
+      
+      function animate() {
+        requestAnimationFrame(animate);
+        
+        points.rotation.y += 0.002 + scrollRotation;
+        innerMesh.rotation.y += 0.001 + scrollRotation;
+        
+        points.rotation.x += 0.0005;
+        
+        // Decay scroll rotation
+        scrollRotation *= 0.95;
+        
+        renderer.render(scene, camera);
+      }
+      
+      animate();
+
+
+      let isCentered = false;
+      let is3DMode = false; // Flag to remember 3D selection
+
+      // 3D Map Trigger in Map Section
+      const trigger3d = document.getElementById('3d-map-trigger');
+      const mapWrapper = document.querySelector('.map-wrapper');
+      
+      if (trigger3d && mapWrapper) {
+        mapWrapper.style.position = 'relative'; // Ensure relative positioning
+        
+        trigger3d.addEventListener('click', () => {
+          is3DMode = true; // Remember 3D selection
+          
+          // Hide background map
+          const mapEl = document.getElementById('map');
+          if (mapEl) mapEl.style.opacity = '0';
+          
+          // 1. Breath out from corner
+          container.style.animation = 'breathOut 0.5s ease forwards';
+          
+          // 2. After breath out, move to map wrapper and bounce in!
+          setTimeout(() => {
+            mapWrapper.appendChild(container);
+            container.style.position = 'absolute';
+            container.style.bottom = 'auto';
+            container.style.right = 'auto';
+            container.style.top = '50%';
+            container.style.left = '50%';
+            
+            container.style.animation = 'bounceIn 0.6s ease forwards';
+            isCentered = true;
+            
+            container.style.width = '150px';
+            container.style.height = '150px';
+            container.style.boxShadow = '0 0 50px rgba(0, 255, 204, 0.8)';
+          }, 500);
+        });
+      }
+
+      // Hook into other map toggles to restore map and move widget back
+      const otherToggles = Array.from(document.querySelectorAll('.map-toggle')).filter(el => el.id !== '3d-map-trigger');
+      otherToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+          is3DMode = false; // Reset 3D selection
+          
+          // Show background map
+          const mapEl = document.getElementById('map');
+          if (mapEl) mapEl.style.opacity = '1';
+          
+          // Move widget back if it was centered
+          if (isCentered) {
+            isCentered = false;
+            container.style.animation = 'bounceOut 0.5s ease forwards';
+            
+            setTimeout(() => {
+              document.body.appendChild(container);
+              container.style.position = 'fixed';
+              container.style.top = 'auto';
+              container.style.left = 'auto';
+              container.style.bottom = '30px';
+              container.style.right = '30px';
+              container.style.width = '150px';
+              container.style.height = '150px';
+              container.style.animation = 'breathIn 0.5s ease forwards';
+              container.style.boxShadow = '0 0 20px rgba(0, 255, 204, 0.5)';
+              container.style.transform = 'none';
+            }, 500);
+          }
+        });
+      });
+
+      // Scroll listener for dynamic widget position
+      window.addEventListener('scroll', () => {
+        const mapSection = document.getElementById('map-section');
+        if (!mapSection) return;
+        
+        const rect = mapSection.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        
+        // If in 3D mode and widget is centered in section
+        if (is3DMode && isCentered) {
+          // If map section goes 200px below the viewport bottom
+          if (rect.top > viewportHeight + 200) {
+            isCentered = false;
+            container.style.animation = 'bounceOut 0.5s ease forwards';
+            
+            setTimeout(() => {
+              document.body.appendChild(container);
+              container.style.position = 'fixed';
+              container.style.top = 'auto';
+              container.style.left = 'auto';
+              container.style.bottom = '30px';
+              container.style.right = '30px';
+              container.style.width = '150px';
+              container.style.height = '150px';
+              container.style.animation = 'breathIn 0.5s ease forwards';
+              container.style.boxShadow = '0 0 20px rgba(0, 255, 204, 0.5)';
+              container.style.transform = 'none';
+            }, 500);
+          }
+        } 
+        // If in 3D mode BUT widget is in corner (because user scrolled up)
+        else if (is3DMode && !isCentered) {
+          // If map section comes back within 150px of viewport bottom
+          if (rect.top < viewportHeight + 150) {
+            isCentered = true;
+            container.style.animation = 'breathOut 0.5s ease forwards';
+            
+            setTimeout(() => {
+              if (mapWrapper) {
+                mapWrapper.appendChild(container);
+                container.style.position = 'absolute';
+                container.style.bottom = 'auto';
+                container.style.right = 'auto';
+                container.style.top = '50%';
+                container.style.left = '50%';
+                container.style.animation = 'bounceIn 0.6s ease forwards';
+                container.style.width = '150px';
+                container.style.height = '150px';
+                container.style.boxShadow = '0 0 50px rgba(0, 255, 204, 0.8)';
+              }
+            }, 500);
+          }
+        }
+      });
+
+      // Click listener for explosion
+      container.addEventListener('click', () => {
+        // Clear animation to allow transform to take effect!
+        container.style.animation = 'none';
+        
+        // Smooth transition instead of layout shift
+        if (isCentered) {
+          container.style.transform = 'translate(-50%, -50%) scale(8)'; // Bigger scale for explosion feel!
+        } else {
+          container.style.transform = 'scale(4)';
+        }
+        container.style.opacity = '0';
+        
+        // Quick scale up of particles (Explosion effect)
+        material.size = 0.1;
+        points.scale.set(3, 3, 3); // Scale up the 3D points mesh too!
+        
+        // Navigate after transition
+        setTimeout(() => {
+          window.location.href = '3d_map.html';
+        }, 500); // Match transition duration in CSS
+      });
+
+
+      // Scroll listener
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        
+        // Add rotation on scroll based on speed
+        const delta = scrollTop - lastScrollTop;
+        scrollRotation = Math.min(Math.max(delta * 0.001, -0.1), 0.1);
+        lastScrollTop = scrollTop;
+      });
+
+    })();
+  </script>
 </body>
 
 </html>

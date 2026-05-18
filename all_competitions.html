@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TECTAK — Tüm Yarışmalar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header" id="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo-group">
+        <img src="grafikbirleşenleri/LOGO.png" alt="TECTAK Logo">
+        <span>TECTAK</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Ana Sayfa</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== ALL COMPETITIONS ===== -->
+  <main class="container" style="margin-top: 120px; padding-bottom: 60px;">
+    <h1 class="gradient-text" style="font-size: 2.5rem; margin-bottom: 40px; text-align: center;">Tüm Yarışmalar</h1>
+    <div class="comp-grid" id="all-comp-grid">
+      <!-- Loaded by JS -->
+    </div>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <p><a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank" style="text-decoration:none; color:inherit;"><span class="gradient-text">TECTAK</span></a> — Teknoloji Takvimi © 2026</p>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
+        <a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank" style="color:var(--accent-blue); text-decoration:none; font-weight:700;">Abdullah GÜLER</a> tarafından geliştirilmiştir.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ===== MOBILE BOTTOM NAV ===== -->
+  <nav class="mobile-bottom-nav">
+    <a href="index.html#events-section" class="mobile-nav-item">
+      <span class="m-nav-icon">🎯</span>
+      <span class="m-nav-label">Etkinlikler</span>
+    </a>
+    <a href="index.html#competitions-section" class="mobile-nav-item active">
+      <span class="m-nav-icon">🏆</span>
+      <span class="m-nav-label">Yarışma</span>
+    </a>
+    <a href="index.html#calendar-section" class="mobile-nav-item">
+      <span class="m-nav-icon">📅</span>
+      <span class="m-nav-label">Takvim</span>
+    </a>
+    <a href="index.html#news-section" class="mobile-nav-item">
+      <span class="m-nav-icon">📰</span>
+      <span class="m-nav-label">Haberler</span>
+    </a>
+    <a href="index.html#map-section" class="mobile-nav-item">
+      <span class="m-nav-icon">📍</span>
+      <span class="m-nav-label">Harita</span>
+    </a>
+  </nav>
+
+  <script src="data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const grid = document.getElementById('all-comp-grid');
+      if (grid && typeof competitions !== 'undefined') {
+        
+        grid.innerHTML = competitions.map(comp => `
+          <div class="comp-card">
+            <div class="comp-header">
+              <div class="comp-icon">${comp.icon}</div>
+              <div class="comp-prize">${comp.prize}</div>
+            </div>
+            <h3 class="comp-title">${comp.title}</h3>
+            <div class="comp-tags">
+              ${comp.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+            <div class="comp-meta">
+              <div class="meta-row"><span>📍</span> ${comp.city}</div>
+              <div class="meta-row"><span>👥</span> Takım: ${comp.teamSize}</div>
+              <div class="meta-row"><span>⏰</span> Son Başvuru: <strong style="color:var(--text-main)">${comp.deadline}</strong></div>
+            </div>
+            <a href="competition.html?id=${comp.id}" class="apply-btn">Bilgi Al</a>
+          </div>
+        `).join('');
+
+        if (competitions.length === 0) {
+          grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Listelenecek yarışma bulunamadı.</p>`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

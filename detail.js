@@ -55,13 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let isClosed = event.registrationStatus === 'closed';
     let regBtnUrl = isClosed ? '#' : (event.registrationUrl || '#');
     let regBtnLabel = isClosed ? 'Başvurular Kapandı' : ((regBtnUrl === '#') ? 'Başvuru Sayfası Aktif Değil' : 'Resmi Sitesinden Kayıt Ol');
-    let onClickAction = isClosed ? "onclick='return false;' style='opacity:0.5; cursor:not-allowed; filter:grayscale(100%);'" : (regBtnUrl === '#' ? "onclick='alert(\"Bu etkinlik için 2026 yılı resmi başvuru/kayıt sayfası henüz erişime açılmamıştır. Lütfen daha sonra tekrar deneyiniz.\"); return false;'" : "target='_blank' rel='noopener noreferrer'");
+    // onClickAction: closed → disabled, # → alert, real URL → open in new tab
+    let onClickAction = isClosed
+      ? "onclick='return false;' style='opacity:0.5; cursor:not-allowed; filter:grayscale(100%);'"
+      : (regBtnUrl === '#'
+          ? "onclick='alert(\"Bu etkinlik için 2026 yılı resmi başvuru/kayıt sayfası henüz erişime açılmamıştır. Lütfen daha sonra tekrar deneyiniz.\"); return false;'"
+          : "target='_blank' rel='noopener noreferrer'");
 
 detailCard.innerHTML = `
       <div class="detail-header">
         <div style="margin-bottom: 12px;">
           <span class="event-type-badge" style="background:${typeColor}20;color:${typeColor}">${event.type}</span>
-          <span class="event-category-tag" style="margin-left: 8px;">${categories.find(c => c.id === event.category)?.label || event.category}</span>
+          <span class="event-category-tag" style="margin-left: 8px;">${(typeof categories !== 'undefined' ? categories.find(c => c.id === event.category)?.label : null) || event.category}</span>
         </div>
         <h1>${event.title}</h1>
         <div class="detail-meta">
@@ -76,7 +81,7 @@ detailCard.innerHTML = `
       </div>
       <div id="detail-map" class="detail-map"></div>
       <div class="detail-footer" style="justify-content: flex-end;">
-        <a href="${regBtnUrl}" target="_blank" rel="noopener" class="register-btn-large" ${onClickAction}>${regBtnLabel}</a>
+        <a href="${regBtnUrl}" class="register-btn-large" ${onClickAction}>${regBtnLabel}</a>
       </div>
     `;
 
