@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     heatLayer: null,
     showHeat: false,
     priceFilter: 'all',
-    calendarDate: new Date()
+    calendarDate: new Date(),
+    favorites: JSON.parse(localStorage.getItem('tectak_favorites') || '[]'),
+    activeCity: 'all'
   };
 
   // --- DOM Refs ---
@@ -48,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Init ---
   function init() {
+    populateCityFilter();
     renderTabs();
     renderEvents();
     renderCalendar();
@@ -61,6 +64,17 @@ document.addEventListener('DOMContentLoaded', () => {
         state.searchQuery = e.target.value.toLowerCase();
         renderEvents();
         renderCalendar();
+      });
+    }
+
+    const cityFilter = document.getElementById('city-filter');
+    if (cityFilter) {
+      cityFilter.addEventListener('change', (e) => {
+        state.activeCity = e.target.value;
+        renderEvents();
+        renderCompetitions();
+        renderCalendar();
+        updateMapMarkers();
       });
     }
 
@@ -88,6 +102,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function populateCityFilter() {
+    const cityFilter = document.getElementById('city-filter');
+    if (!cityFilter) return;
+    const currentEvents = window.events || (typeof events !== 'undefined' ? events : []);
+    const comps = typeof competitions !== 'undefined' ? competitions : [];
+    const allCities = new Set();
+    currentEvents.forEach(e => { if (e.city) allCities.add(e.city); });
+    comps.forEach(c => { if (c.city) allCities.add(c.city); });
+    const sortedCities = Array.from(allCities).sort();
+    cityFilter.innerHTML = `<option value="all">📍 Tüm Şehirler</option>` +
+      sortedCities.map(city => `<option value="${city}">${city}</option>`).join('');
+  }
+
+  window.toggleFavorite = function(e, id) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const index = state.favorites.indexOf(String(id));
+    const indexNum = state.favorites.indexOf(Number(id));
+    if (index > -1) {
+      state.favorites.splice(index, 1);
+    } else if (indexNum > -1) {
+      state.favorites.splice(indexNum, 1);
+    } else {
+      state.favorites.push(String(id));
+    }
+    localStorage.setItem('tectak_favorites', JSON.stringify(state.favorites));
+    renderTabs();
+    renderEvents();
+    renderCompetitions();
+    updateMapMarkers();
+  };
+
   // --- Tarih bazlı otomatik status hesaplama ---
   function computeStatus(event) {
     const today = new Date();
@@ -105,13 +153,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    // Sadece bugün ve sonrasını göster
-    filtered = filtered.filter(e => new Date(e.date) >= today);
+
+    // Sadece bugün ve sonrasını göster (unless in favorites category)
+    if (state.activeCategory !== 'favorites') {
+      filtered = filtered.filter(e => new Date(e.date) >= today);
+    }
 
     filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    if (state.activeCategory !== 'tumu') {
+    if (state.activeCategory === 'favorites') {
+      filtered = filtered.filter(e => state.favorites.includes(String(e.id)) || state.favorites.includes(Number(e.id)));
+    } else if (state.activeCategory !== 'tumu') {
       filtered = filtered.filter(e => e.category === state.activeCategory);
+    }
+
+    if (state.activeCity !== 'all') {
+      filtered = filtered.filter(e => e.city === state.activeCity);
     }
 
     if (state.searchQuery) {
@@ -132,14 +189,54 @@ document.addEventListener('DOMContentLoaded', () => {
     return filtered;
   }
 
+  // --- Competitions Filter Helper ---
+  function getFilteredCompetitions() {
+    let currentComps = typeof competitions !== 'undefined' ? competitions : [];
+    let filtered = [...currentComps];
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (state.activeCategory !== 'favorites') {
+      filtered = filtered.filter(c => new Date(c.deadline) >= today);
+    }
+
+    filtered.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+    if (state.activeCategory === 'favorites') {
+      filtered = filtered.filter(c => state.favorites.includes(String(c.id)) || state.favorites.includes(Number(c.id)));
+    } else if (state.activeCategory !== 'tumu') {
+      filtered = filtered.filter(c => c.category === state.activeCategory);
+    }
+
+    if (state.activeCity !== 'all') {
+      filtered = filtered.filter(c => c.city === state.activeCity);
+    }
+
+    if (state.searchQuery) {
+      filtered = filtered.filter(c =>
+        c.title.toLowerCase().includes(state.searchQuery) ||
+        c.description.toLowerCase().includes(state.searchQuery) ||
+        c.city.toLowerCase().includes(state.searchQuery) ||
+        c.organizer.toLowerCase().includes(state.searchQuery)
+      );
+    }
+
+    return filtered;
+  }
+
   // --- Tabs ---
   function renderTabs() {
     if (!tabsContainer) return;
     const currentEvents = window.events || (typeof events !== 'undefined' ? events : []);
     const cats = typeof categories !== 'undefined' ? categories : [];
     
-    tabsContainer.innerHTML = cats.map(cat => {
-      const count = cat.id === 'tumu' ? currentEvents.length : currentEvents.filter(e => e.category === cat.id).length;
+    let tabsHtml = cats.map(cat => {
+      let countList = currentEvents;
+      if (state.activeCity !== 'all') {
+        countList = countList.filter(e => e.city === state.activeCity);
+      }
+      const count = cat.id === 'tumu' ? countList.length : countList.filter(e => e.category === cat.id).length;
       return `<button class="tab-btn ${cat.id === state.activeCategory ? 'active' : ''}"
                 data-category="${cat.id}">
                 <span>${cat.icon}</span>
@@ -148,12 +245,23 @@ document.addEventListener('DOMContentLoaded', () => {
               </button>`;
     }).join('');
 
+    // Dynamic Favorites count
+    const favCount = state.favorites.length;
+    tabsHtml += `<button class="tab-btn fav-tab-btn ${state.activeCategory === 'favorites' ? 'active' : ''}" data-category="favorites">
+      <span>❤️</span>
+      <span>Favorilerim</span>
+      <span class="tab-count" style="background: var(--accent-red); color: white;">${favCount}</span>
+    </button>`;
+
+    tabsContainer.innerHTML = tabsHtml;
+
     tabsContainer.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         state.activeCategory = btn.dataset.category;
         tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderEvents();
+        renderCompetitions();
         updateMapMarkers();
       });
     });
@@ -202,6 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const catLabel = typeof categories !== 'undefined' ? (categories.find(c => c.id === event.category)?.label || event.category) : event.category;
       const catIcon = typeof categories !== 'undefined' ? (categories.find(c => c.id === event.category)?.icon || '') : '';
 
+      const isFav = state.favorites.includes(String(event.id)) || state.favorites.includes(Number(event.id));
+
       return `<div class="event-card reveal" style="animation-delay:${i * 0.06}s; ${isClosed ? 'opacity:0.6;' : ''}"
                    data-id="${event.id}" data-url="event.html?id=${event.id}">
         <div class="event-date-block">
@@ -224,8 +334,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="event-meta-item">${icons.org} ${event.organizer}</span>
           </div>
         </div>
-        <div class="event-actions">
-          <a href="event.html?id=${event.id}" class="register-btn" onclick="event.stopPropagation()">Detaylı Bilgi</a>
+        <div class="event-actions" style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
+          <button class="fav-btn ${isFav ? 'active' : ''}" 
+                  data-id="${event.id}" onclick="toggleFavorite(event, '${event.id}')">❤️</button>
+          <a href="event.html?id=${event.id}" class="register-btn" onclick="event.stopPropagation()" style="margin-left:0;">Detaylı Bilgi</a>
         </div>
       </div>`;
     };
@@ -272,13 +384,75 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapEl = document.getElementById('map');
     if (!mapEl || typeof L === 'undefined') return;
 
-    state.mapInstance = L.map('map', { zoomControl: false }).setView([39.0, 32.0], 6);
+    const isMobile = window.innerWidth <= 768;
+
+    state.mapInstance = L.map('map', { 
+      zoomControl: false,
+      dragging: !isMobile,
+      tap: !isMobile
+    }).setView([39.0, 32.0], 6);
+
     L.control.zoom({ position: 'topright' }).addTo(state.mapInstance);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '© CARTO', maxZoom: 18
     }).addTo(state.mapInstance);
 
     updateMapMarkers();
+
+    // Map gesture lock for mobile viewports to prevent scroll traps
+    if (isMobile) {
+      const mapWrapper = mapEl.closest('.map-wrapper');
+      if (mapWrapper) {
+        const overlay = document.createElement('div');
+        overlay.id = 'map-lock-overlay';
+        overlay.innerHTML = `
+          <div class="map-lock-content" style="
+            background: rgba(20, 25, 45, 0.85);
+            border: 1px solid var(--glass-border);
+            padding: 12px 24px;
+            border-radius: 50px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+          ">
+            <span class="map-lock-icon">📍</span>
+            <span class="map-lock-text">Haritada gezinmek için dokunun</span>
+          </div>
+        `;
+        overlay.style.cssText = `
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(10, 15, 30, 0.6);
+          backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          cursor: pointer;
+          transition: opacity 0.4s ease, visibility 0.4s ease;
+          border-radius: var(--radius);
+        `;
+
+        mapWrapper.style.position = 'relative';
+        mapWrapper.appendChild(overlay);
+
+        overlay.addEventListener('click', () => {
+          overlay.style.opacity = '0';
+          overlay.style.visibility = 'hidden';
+          state.mapInstance.dragging.enable();
+          if (state.mapInstance.tap) state.mapInstance.tap.enable();
+          setTimeout(() => overlay.remove(), 400);
+        });
+      }
+    }
 
     document.querySelectorAll('.map-toggle').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -500,8 +674,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const compGrid = document.getElementById('comp-grid');
     if (!compGrid || typeof competitions === 'undefined') return;
 
-    compGrid.innerHTML = competitions.slice(0, 6).map((comp, i) => `
-      <div class="comp-card reveal" style="animation-delay: ${i * 0.1}s">
+    const filtered = getFilteredCompetitions();
+    
+    // On main page, show all matching competitions if they are filtered, or slice(0, 6) if it's tumu and no search query.
+    const displayList = (state.activeCategory === 'tumu' && state.activeCity === 'all' && !state.searchQuery)
+      ? filtered.slice(0, 6)
+      : filtered;
+
+    if (displayList.length === 0) {
+      compGrid.innerHTML = `
+        <div class="no-results" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px; border: 1px dashed var(--glass-border); border-radius: var(--radius);">
+          <div class="icon" style="font-size: 2.5rem; margin-bottom: 12px;">🔍</div>
+          <h3>Yarışma bulunamadı</h3>
+          <p>Farklı bir kategori veya arama terimi deneyin.</p>
+        </div>`;
+      return;
+    }
+
+    compGrid.innerHTML = displayList.map((comp, i) => {
+      const isFav = state.favorites.includes(String(comp.id)) || state.favorites.includes(Number(comp.id));
+      return `
+      <div class="comp-card reveal" style="animation-delay: ${i * 0.05}s; cursor: pointer;" onclick="window.location.href='competition.html?id=${comp.id}'">
         <div class="comp-header">
           <div class="comp-icon">${comp.icon}</div>
           <div class="comp-prize">${comp.prize}</div>
@@ -515,9 +708,15 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="meta-row"><span>👥</span> Takım: ${comp.teamSize}</div>
           <div class="meta-row"><span>⏰</span> Son Başvuru: <strong style="color:var(--text-main)">${comp.deadline}</strong></div>
         </div>
-        <a href="competition.html?id=${comp.id}" class="apply-btn">Bilgi Al</a>
+        <div class="comp-actions" style="display:flex; align-items:center; justify-content:space-between; margin-top:20px; gap:8px;">
+          <button class="fav-btn ${isFav ? 'active' : ''}" 
+                  data-id="${comp.id}" onclick="toggleFavorite(event, '${comp.id}')">❤️</button>
+          <a href="competition.html?id=${comp.id}" class="apply-btn" onclick="event.stopPropagation()" style="margin-top:0; flex-grow:1; text-align:center;">Bilgi Al</a>
+        </div>
       </div>
-    `).join('');
+    `}).join('');
+
+    observeReveals();
   }
 
   // --- Start ---

@@ -124,9 +124,17 @@
       </div>
       <h1>Teknoloji Dünyasının<br><span class="gradient-text">Etkinlik Takvimi</span></h1>
       <p>Türkiye'deki seminer, fuar, gösteri ve etkinlikleri keşfedin. Kategorize edin, takip edin, kaydolun.</p>
-      <div class="search-wrapper">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" class="search-input" placeholder="Etkinlik, şehir veya konu ara...">
+      <div class="filter-container">
+        <div class="search-wrapper" style="flex: 2; margin: 0; max-width: none;">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" class="search-input" placeholder="Etkinlik, şehir veya konu ara...">
+        </div>
+        <div class="city-select-wrapper">
+          <select id="city-filter" class="city-select">
+            <option value="all">📍 Tüm Şehirler</option>
+          </select>
+          <span class="city-select-arrow">▼</span>
+        </div>
       </div>
       <div class="price-filters">
         <label class="price-filter-label">
@@ -298,8 +306,10 @@
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
       
+      const isMobile = window.innerWidth <= 768;
+      const size = isMobile ? 65 : 150;
       const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-      renderer.setSize(150, 150);
+      renderer.setSize(size, size);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       // Create a particle globe
