@@ -641,10 +641,32 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
 
 /* ===== FOOTER ===== */
 .footer {
-  padding: 32px 0; text-align: center;
+  padding: 40px 0;
+  text-align: center;
   border-top: 1px solid var(--glass-border);
+  background: #000000;
+  position: relative;
+  z-index: 10;
 }
-.footer p { color: var(--text-muted); font-size: 0.8rem; }
+.footer p {
+  color: rgba(240, 240, 245, 0.8) !important;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  line-height: 1.6;
+}
+.footer p:first-child {
+  margin-top: 0;
+}
+.footer p a {
+  color: var(--accent-blue) !important;
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.footer p a:hover {
+  color: var(--accent-green) !important;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
 .footer .gradient-text {
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
