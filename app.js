@@ -48,8 +48,61 @@ document.addEventListener('DOMContentLoaded', () => {
   const months = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
   const fullMonths = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
 
+  function applyFlipText(element, duration = 2.2, delay = 0, loop = true) {
+    const text = element.textContent.trim();
+    const words = text.split(" ");
+    const totalChars = text.length;
+    element.innerHTML = ""; // Clear
+    element.classList.add("flip-text-wrapper");
+    element.style.perspective = "1000px";
+
+    const getCharIndex = (wordIndex, charIndex) => {
+      let index = 0;
+      for (let i = 0; i < wordIndex; i++) {
+        index += words[i].length + 1;
+      }
+      return index + charIndex;
+    };
+
+    words.forEach((word, wordIndex) => {
+      const wordSpan = document.createElement("span");
+      wordSpan.className = "word inline-block whitespace-nowrap";
+      wordSpan.style.transformStyle = "preserve-3d";
+
+      const chars = word.split("");
+      chars.forEach((char, charIndex) => {
+        const charSpan = document.createElement("span");
+        charSpan.className = "flip-char inline-block relative";
+        charSpan.setAttribute("data-char", char);
+        charSpan.textContent = char;
+
+        const currentGlobalIndex = getCharIndex(wordIndex, charIndex);
+        const normalizedIndex = currentGlobalIndex / totalChars;
+        const sineValue = Math.sin(normalizedIndex * (Math.PI / 2));
+        const calculatedDelay = sineValue * (duration * 0.25) + delay;
+
+        charSpan.style.setProperty("--flip-duration", `${duration}s`);
+        charSpan.style.setProperty("--flip-delay", `${calculatedDelay}s`);
+        charSpan.style.setProperty("--flip-iteration", loop ? "infinite" : "1");
+        charSpan.style.transformStyle = "preserve-3d";
+
+        wordSpan.appendChild(charSpan);
+      });
+
+      element.appendChild(wordSpan);
+
+      if (wordIndex < words.length - 1) {
+        const spaceSpan = document.createElement("span");
+        spaceSpan.className = "whitespace inline-block";
+        spaceSpan.innerHTML = "&nbsp;";
+        element.appendChild(spaceSpan);
+      }
+    });
+  }
+
   // --- Init ---
   function init() {
+    document.querySelectorAll('.flip-text').forEach(el => applyFlipText(el));
     populateCityFilter();
     renderTabs();
     renderEvents();
@@ -384,12 +437,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapEl = document.getElementById('map');
     if (!mapEl || typeof L === 'undefined') return;
 
-    const isMobile = window.innerWidth <= 768;
-
     state.mapInstance = L.map('map', { 
-      zoomControl: false,
-      dragging: !isMobile,
-      tap: !isMobile
+      zoomControl: false
     }).setView([39.0, 32.0], 6);
 
     L.control.zoom({ position: 'topright' }).addTo(state.mapInstance);
@@ -398,61 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }).addTo(state.mapInstance);
 
     updateMapMarkers();
-
-    // Map gesture lock for mobile viewports to prevent scroll traps
-    if (isMobile) {
-      const mapWrapper = mapEl.closest('.map-wrapper');
-      if (mapWrapper) {
-        const overlay = document.createElement('div');
-        overlay.id = 'map-lock-overlay';
-        overlay.innerHTML = `
-          <div class="map-lock-content" style="
-            background: rgba(20, 25, 45, 0.85);
-            border: 1px solid var(--glass-border);
-            padding: 12px 24px;
-            border-radius: 50px;
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-          ">
-            <span class="map-lock-icon">📍</span>
-            <span class="map-lock-text">Haritada gezinmek için dokunun</span>
-          </div>
-        `;
-        overlay.style.cssText = `
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(10, 15, 30, 0.6);
-          backdrop-filter: blur(4px);
-          -webkit-backdrop-filter: blur(4px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          cursor: pointer;
-          transition: opacity 0.4s ease, visibility 0.4s ease;
-          border-radius: var(--radius);
-        `;
-
-        mapWrapper.style.position = 'relative';
-        mapWrapper.appendChild(overlay);
-
-        overlay.addEventListener('click', () => {
-          overlay.style.opacity = '0';
-          overlay.style.visibility = 'hidden';
-          state.mapInstance.dragging.enable();
-          if (state.mapInstance.tap) state.mapInstance.tap.enable();
-          setTimeout(() => overlay.remove(), 400);
-        });
-      }
-    }
 
     document.querySelectorAll('.map-toggle').forEach(btn => {
       btn.addEventListener('click', () => {

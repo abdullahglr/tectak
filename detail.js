@@ -121,11 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.title = `${event.title} — TECTAK`;
 
     // Initialize Map for detail page
-    const isMobile = window.innerWidth <= 768;
-    const map = L.map('detail-map', {
-      dragging: !isMobile,
-      tap: !isMobile
-    }).setView([event.lat, event.lng], 13);
+    const map = L.map('detail-map').setView([event.lat, event.lng], 13);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '© CARTO'
@@ -147,62 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
       .bindPopup(`<b>${event.title}</b><br>${event.location}`)
       .addTo(map)
       .openPopup();
-
-    // Map gesture lock for mobile viewports
-    if (isMobile) {
-      const mapEl = document.getElementById('detail-map');
-      if (mapEl) {
-        mapEl.style.position = 'relative';
-        const overlay = document.createElement('div');
-        overlay.id = 'map-lock-overlay';
-        overlay.innerHTML = `
-          <div class="map-lock-content" style="
-            background: rgba(20, 25, 45, 0.85);
-            border: 1px solid var(--glass-border);
-            padding: 12px 24px;
-            border-radius: 50px;
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-          ">
-            <span class="map-lock-icon">📍</span>
-            <span class="map-lock-text">Haritada gezinmek için dokunun</span>
-          </div>
-        `;
-        overlay.style.cssText = `
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(10, 15, 30, 0.6);
-          backdrop-filter: blur(4px);
-          -webkit-backdrop-filter: blur(4px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          cursor: pointer;
-          transition: opacity 0.4s ease, visibility 0.4s ease;
-          border-radius: var(--radius-sm);
-        `;
-
-        mapEl.appendChild(overlay);
-
-        overlay.addEventListener('click', (e) => {
-          e.stopPropagation();
-          overlay.style.opacity = '0';
-          overlay.style.visibility = 'hidden';
-          map.dragging.enable();
-          if (map.tap) map.tap.enable();
-          setTimeout(() => overlay.remove(), 400);
-        });
-      }
-    }
 
     // Handle Sharing
     document.querySelectorAll('.share-btn').forEach(btn => {
