@@ -4,7 +4,6 @@
  */
 // TECTAK - Teknoloji Takvimi Etkinlik Verileri
 const events = [
-  // --- SAVUNMA SANAYİ ---
   {
     id: 1,
     title: "SAHA EXPO Savunma Sanayi Fuarı",
@@ -21,7 +20,7 @@ const events = [
     type: "Fuar",
     price: "Ücretsiz",
     organizer: "SAHA İstanbul",
-    registrationStatus: "open"
+    registrationStatus: "closed"
   },
   {
     id: 2,
@@ -68,7 +67,7 @@ const events = [
     endTime: "17:30",
     location: "Antalya Havalimanı",
     city: "Antalya",
-    lat: 36.9000,
+    lat: 36.9,
     lng: 30.8005,
     description: "Uluslararası Havacılık ve Uzay Sanayii fuarı. Sivil ve askeri havacılık firmalarının buluşma noktası.",
     registrationUrl: "https://www.eurasiaairshow.com/register",
@@ -77,8 +76,6 @@ const events = [
     organizer: "Eurasia Airshow",
     registrationStatus: "open"
   },
-
-  // --- TEKNOLOJİ & GENEL ---
   {
     id: 5,
     title: "TEKNOFEST Havacılık Festivali",
@@ -131,7 +128,7 @@ const events = [
     type: "Fuar",
     price: "30 ₺",
     organizer: "İzmir Maker Topluluğu",
-    registrationStatus: "open"
+    registrationStatus: "closed"
   },
   {
     id: 8,
@@ -160,8 +157,8 @@ const events = [
     endTime: "18:00",
     location: "Dr. Mimar Kadir Topbaş Gösteri Merkezi",
     city: "İstanbul",
-    lat: 40.9950,
-    lng: 28.8950,
+    lat: 40.995,
+    lng: 28.895,
     description: "Akıllı ulaşım, temiz enerji, IoT altyapısı ve geleceğin şehir teknolojileri vizyonu.",
     registrationUrl: "#",
     type: "Seminer",
@@ -169,8 +166,6 @@ const events = [
     organizer: "İBB",
     registrationStatus: "open"
   },
-
-  // --- BİLİŞİM & YAZILIM ---
   {
     id: 10,
     title: "Webrazzi Summit 2026",
@@ -199,7 +194,7 @@ const events = [
     location: "Haliç Kongre Merkezi",
     city: "İstanbul",
     lat: 41.0422,
-    lng: 28.9720,
+    lng: 28.972,
     description: "Google teknolojileri, Android, Flutter, Firebase, Cloud ve Machine Learning üzerine konuşmalar ve codelab'ler.",
     registrationUrl: "#",
     type: "Seminer",
@@ -252,8 +247,8 @@ const events = [
     endTime: "17:00",
     location: "Fişekhane, Zeytinburnu",
     city: "İstanbul",
-    lat: 40.9850,
-    lng: 28.9000,
+    lat: 40.985,
+    lng: 28.9,
     description: "Kurumsal dönüşüm, ERP, büyük veri ve yapay zeka destekli kurumsal çözümlerin tartışıldığı tepe yönetici zirvesi.",
     registrationUrl: "https://bilisimzirvesi.com.tr",
     type: "Seminer",
@@ -261,8 +256,6 @@ const events = [
     organizer: "BTHaber",
     registrationStatus: "open"
   },
-
-  // --- ROBOTİK ---
   {
     id: 15,
     title: "İTÜ Robot Olimpiyatları (İTÜRO)",
@@ -290,8 +283,8 @@ const events = [
     endTime: "18:00",
     location: "Atatürk Spor Salonu",
     city: "Erzurum",
-    lat: 39.9080,
-    lng: 41.2760,
+    lat: 39.908,
+    lng: 41.276,
     description: "Mesleki ve teknik eğitim öğrencilerinin yanı sıra üniversite öğrencilerinin tasarladığı robotların kıyasıya mücadelesi.",
     registrationUrl: "http://robot.meb.gov.tr",
     type: "Gösteri",
@@ -335,8 +328,6 @@ const events = [
     organizer: "Türkiye Drone Ligi",
     registrationStatus: "open"
   },
-
-  // --- ELEKTRİK-ELEKTRONİK & ENDÜSTRİ ---
   {
     id: 19,
     title: "WIN EURASIA Endüstri Fuarı",

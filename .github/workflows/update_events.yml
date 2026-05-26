@@ -26,47 +26,7 @@ jobs:
         run: node fetch_events.js
 
       - name: Tarih Bazlı registrationStatus Güncelle
-        run: |
-          node -e "
-          const fs = require('fs');
-          const today = new Date().toISOString().split('T')[0];
-
-          // events.json güncelle
-          const eventsPath = './events.json';
-          const events = JSON.parse(fs.readFileSync(eventsPath, 'utf8'));
-          let changed = false;
-          events.forEach(e => {
-            if (e.date < today && e.registrationStatus === 'open') {
-              e.registrationStatus = 'closed';
-              changed = true;
-              console.log('Kapatıldı:', e.title, e.date);
-            }
-          });
-          if (changed) fs.writeFileSync(eventsPath, JSON.stringify(events, null, 2), 'utf8');
-
-          // data.js güncelle (lokal fallback için events senkronu)
-          const dataPath = './data.js';
-          let dataContent = fs.readFileSync(dataPath, 'utf8');
-          const dataEventsMatch = dataContent.match(/const\s+events\s*=\s*(\[[\s\S]*?\]);\s*\/\/\s*Kategori/);
-          if (dataEventsMatch && changed) {
-             const updatedEventsString = JSON.stringify(events, null, 2).replace(/"([^"]+)":/g, '$1:');
-             dataContent = dataContent.replace(dataEventsMatch[1], updatedEventsString);
-             fs.writeFileSync(dataPath, dataContent, 'utf8');
-             console.log('data.js events güncellendi.');
-          }
-
-          // news_data.js lastUpdated timestamp güncelle
-          const newsPath = './news_data.js';
-          let newsContent = fs.readFileSync(newsPath, 'utf8');
-          const tsLine = '// lastUpdated: ' + today;
-          if (newsContent.startsWith('// lastUpdated:')) {
-            newsContent = newsContent.replace(/^\/\/ lastUpdated:.*\n/, tsLine + '\n');
-          } else {
-            newsContent = tsLine + '\n' + newsContent;
-          }
-          fs.writeFileSync(newsPath, newsContent, 'utf8');
-          console.log('news_data.js lastUpdated:', today);
-          "
+        run: node update_status.js
 
       - name: Değişiklikleri Commit Et
         run: |

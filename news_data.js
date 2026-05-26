@@ -1,3 +1,4 @@
+// lastUpdated: 2026-05-26
 window.news = [
   {
     id: 1,
