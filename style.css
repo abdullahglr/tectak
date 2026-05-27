@@ -14,9 +14,9 @@
 :root {
   --bg-primary: #0a0a0f;
   --bg-secondary: #12121a;
-  --bg-card: rgba(255,255,255,0.04);
-  --bg-card-hover: rgba(255,255,255,0.08);
-  --glass-border: rgba(255,255,255,0.08);
+  --bg-card: rgba(16, 16, 24, 0.65);
+  --bg-card-hover: rgba(24, 24, 36, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --text-primary: #f0f0f5;
   --text-secondary: #8888a0;
   --text-muted: #55556a;
@@ -142,9 +142,11 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
 }
 .search-input {
   width: 100%; padding: 16px 24px 16px 50px; border-radius: 50px;
-  background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+  background: rgba(10, 10, 15, 0.85); border: 1px solid var(--glass-border);
   color: #fff; font-size: 1rem; transition: var(--transition);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 .search-input:focus {
   outline: none; background: rgba(255,255,255,0.08); border-color: var(--accent-blue);
@@ -159,10 +161,13 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
   display: inline-flex;
   justify-content: center;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(10, 10, 15, 0.85);
   padding: 4px;
   border-radius: 50px;
   border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   margin-top: 16px;
 }
 .price-filter-label {
@@ -206,16 +211,18 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
   width: 100%;
   padding: 16px 20px;
   border-radius: 50px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(10, 10, 15, 0.85);
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 .city-select:focus {
   outline: none;
@@ -314,6 +321,9 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
   border-radius: var(--radius); overflow: hidden;
   display: flex; transition: var(--transition);
   cursor: pointer; position: relative;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .event-card:hover {
   background: var(--bg-card-hover); border-color: rgba(255,255,255,0.15);
@@ -418,7 +428,9 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
 .calendar-wrapper {
   background: var(--bg-card); border: 1px solid var(--glass-border);
   border-radius: var(--radius); padding: 24px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
 }
 .calendar-days-header {
   display: grid; grid-template-columns: repeat(7, 1fr);
@@ -515,6 +527,9 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
   border-radius: var(--radius); overflow: hidden;
   transition: var(--transition); cursor: pointer;
   display: flex; flex-direction: column;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .news-card:hover {
   transform: translateY(-5px); border-color: rgba(0,212,255,0.3);
@@ -560,6 +575,9 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
   border-radius: var(--radius); padding: 30px;
   transition: var(--transition); position: relative; overflow: hidden;
   min-height: 280px; display: flex; flex-direction: column;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .comp-card::before {
   content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
@@ -630,11 +648,12 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
   padding: 24px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .dashboard-card:hover {
   border-color: rgba(0, 212, 255, 0.25);
@@ -1411,6 +1430,39 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
 @keyframes fade {
   0% { opacity: 1; }
   30%, 100% { opacity: var(--opacity, 0); }
+}
+
+/* ===== SECTION BACKDROP PANELS ===== */
+.tabs-section .container,
+.events-section .container,
+.competitions-section .container,
+.calendar-section .container,
+.news-section .container,
+.dashboard-section .container,
+.map-section .container {
+  background: rgba(10, 10, 15, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 40px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+  .tabs-section .container,
+  .events-section .container,
+  .competitions-section .container,
+  .calendar-section .container,
+  .news-section .container,
+  .dashboard-section .container,
+  .map-section .container {
+    padding: 24px 16px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
 }
 
 
