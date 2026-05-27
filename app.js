@@ -788,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('scroll', () => {
-    const sections = ['events-section', 'competitions-section', 'calendar-section', 'news-section', 'map-section'];
+    const sections = ['events-section', 'competitions-section', 'calendar-section', 'news-section', 'dashboard-section', 'map-section'];
     let current = '';
     const scrollPos = window.scrollY;
     sections.forEach(id => {

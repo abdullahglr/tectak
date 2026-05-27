@@ -114,6 +114,7 @@
         <button class="nav-link" data-target="competitions-section">Yarışmalar</button>
         <button class="nav-link" data-target="calendar-section">Takvim</button>
         <button class="nav-link" data-target="news-section">Haberler</button>
+        <button class="nav-link" data-target="dashboard-section">İstatistikler</button>
         <button class="nav-link" data-target="map-section">Harita</button>
       </nav>
     </div>
@@ -239,6 +240,44 @@
     </div>
   </section>
 
+  <!-- ===== TRENDS/DASHBOARD ===== -->
+  <section class="dashboard-section reveal" id="dashboard-section">
+    <div class="container">
+      <h2>Teknoloji Trendleri & İstatistikler</h2>
+      <p class="dashboard-subtitle">Türkiye'deki teknoloji ekosisteminin veri analizleri ve trendleri</p>
+      
+      <div class="dashboard-grid">
+        <div class="dashboard-card chart-card">
+          <h3>En Popüler Kategoriler</h3>
+          <div class="chart-container">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="dashboard-card chart-card">
+          <h3>Etkinlik Yoğunluğu En Yüksek Şehirler</h3>
+          <div class="chart-container">
+            <canvas id="cityChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="dashboard-card stats-card">
+          <h3>Genel Özet</h3>
+          <div class="stats-container" id="generalStats">
+            <div style="text-align: center; color: var(--text-muted); padding: 40px;">İstatistikler hesaplanıyor...</div>
+          </div>
+        </div>
+
+        <div class="dashboard-card chart-card">
+          <h3>Fiyat Dağılımı (Ücretsiz vs. Ücretli)</h3>
+          <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== MAP ===== -->
   <section class="map-section reveal" id="map-section">
     <div class="container">
@@ -332,6 +371,10 @@ Bana dilediğiniz soruyu sorabilirsiniz! (Örn: *\"İstanbul'da hangi robotik et
   <script src="news_data.js"></script>
   <script src="app.js"></script>
   <script src="ai_assistant.js"></script>
+  
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="dashboard.js"></script>
   
   <!-- Three.js Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
