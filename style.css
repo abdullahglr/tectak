@@ -768,22 +768,28 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
 
 /* ===== FOOTER ===== */
 .footer {
-  padding: 80px 0 40px;
+  padding: 60px 0 40px;
   text-align: center;
-  background: linear-gradient(to bottom, 
-    rgba(10, 10, 15, 0) 0%, 
-    rgba(0, 0, 0, 0.4) 20%, 
-    rgba(0, 0, 0, 0.85) 55%, 
-    #000000 100%
-  );
+  background: #000000;
+  border-top: 1px solid rgba(0, 212, 255, 0.18);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.8), 0 -2px 0 rgba(0, 212, 255, 0.08);
   position: relative;
   z-index: 10;
 }
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-blue), var(--accent-green), var(--accent-blue), transparent);
+  opacity: 0.5;
+}
 .footer p {
-  color: rgba(240, 240, 245, 0.8) !important;
+  color: rgba(240, 240, 245, 0.9) !important;
   font-size: 0.85rem;
   margin-top: 6px;
   line-height: 1.6;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 .footer p:first-child {
   margin-top: 0;
@@ -791,12 +797,13 @@ h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 16px;
 .footer p a {
   color: var(--accent-blue) !important;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   transition: var(--transition);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
 }
 .footer p a:hover {
   color: var(--accent-green) !important;
-  text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+  text-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
 }
 .footer .gradient-text {
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
