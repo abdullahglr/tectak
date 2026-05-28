@@ -14,14 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const newsId = parseInt(urlParams.get('id'));
 
   if (!newsId || !window.news) {
-    contentArea.innerHTML = `<div style="text-align:center; padding: 100px;">Haber bulunamadı. <a href="index.html" style="color:var(--accent-blue)">Geri dön</a></div>`;
+    contentArea.innerHTML = `<div style="text-align:center; padding: 100px;">Haber bulunamadı. <a href="../index.html" style="color:var(--accent-blue)">Geri dön</a></div>`;
     return;
   }
 
   const item = window.news.find(n => n.id === newsId);
 
   if (!item) {
-    contentArea.innerHTML = `<div style="text-align:center; padding: 100px;">Haber bulunamadı. <a href="index.html" style="color:var(--accent-blue)">Geri dön</a></div>`;
+    contentArea.innerHTML = `<div style="text-align:center; padding: 100px;">Haber bulunamadı. <a href="../index.html" style="color:var(--accent-blue)">Geri dön</a></div>`;
     return;
   }
 
