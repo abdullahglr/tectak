@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TECTAK — Ziyaretçi Başvurusu</title>
-  <link rel="stylesheet" href="style.css?v=1.1">
+  <link rel="stylesheet" href="../assets/css/style.css?v=2.0">
   <style>
     .register-container {
       max-width: 600px;
@@ -100,12 +100,12 @@
   <!-- ===== HEADER ===== -->
   <header class="header" id="header">
     <div class="container header-inner">
-      <a href="index.html" class="logo-group">
-        <img src="grafikbirleşenleri/LOGO.png" alt="TECTAK Logo">
+      <a href="../index.html" class="logo-group">
+        <img src="../assets/images/LOGO.png" alt="TECTAK Logo">
         <span>TECTAK</span>
       </a>
       <nav class="nav-links">
-        <a href="index.html" class="nav-link">Ana Sayfa</a>
+        <a href="../index.html" class="nav-link">Ana Sayfa</a>
       </nav>
     </div>
   </header>
@@ -158,12 +158,12 @@
         <h2>Başvurunuz Alındı!</h2>
         <p style="color: var(--text-muted); margin: 16px 0;">Biletiniz ve katılım detayları e-posta adresinize gönderilecektir.</p>
         <p id="success-event-name" style="font-weight: bold; margin-bottom: 24px; color: var(--accent-blue);"></p>
-        <a href="index.html" class="submit-btn" style="display: inline-block; text-decoration: none; text-align: center; width: auto; padding: 12px 32px;">Ana Sayfaya Dön</a>
+        <a href="../index.html" class="submit-btn" style="display: inline-block; text-decoration: none; text-align: center; width: auto; padding: 12px 32px;">Ana Sayfaya Dön</a>
       </div>
     </div>
   </main>
 
-  <script src="data.js"></script>
+  <script src="../data/data.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -182,7 +182,7 @@
       if (!event) {
         eventNameDisplay.innerHTML = '<span style="color:var(--accent-red)">Etkinlik bulunamadı.</span>';
         form.style.display = 'none';
-        backLink.href = 'index.html';
+        backLink.href = '../index.html';
         return;
       }
       

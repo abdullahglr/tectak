@@ -261,7 +261,7 @@ Kullanıcı sorusuna bu kurallar çerçevesinde Türkçe cevap ver.`;
     // Render Events Cards
     foundEvents.forEach(e => {
       const card = document.createElement('a');
-      card.href = `event.html?id=${e.id}`;
+      card.href = `pages/event.html?id=${e.id}`;
       card.className = 'ai-chat-card';
       card.innerHTML = `
         <div class="ai-chat-card-icon">📍</div>
@@ -276,7 +276,7 @@ Kullanıcı sorusuna bu kurallar çerçevesinde Türkçe cevap ver.`;
     // Render Competitions Cards
     foundComps.forEach(c => {
       const card = document.createElement('a');
-      card.href = `competition.html?id=${c.id}`;
+      card.href = `pages/competition.html?id=${c.id}`;
       card.className = 'ai-chat-card';
       card.innerHTML = `
         <div class="ai-chat-card-icon">${c.icon || '🏆'}</div>

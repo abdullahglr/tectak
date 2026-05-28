@@ -10,7 +10,7 @@ try {
   console.log('Güncelleme tarihi:', today);
 
   // 1. events.json güncelle
-  const eventsPath = './events.json';
+  const eventsPath = '../data/events.json';
   if (fs.existsSync(eventsPath)) {
     const events = JSON.parse(fs.readFileSync(eventsPath, 'utf8'));
     let changed = false;
@@ -27,7 +27,7 @@ try {
       console.log('events.json güncellendi.');
 
       // 2. data.js güncelle (lokal fallback için events senkronu)
-      const dataPath = './data.js';
+      const dataPath = '../data/data.js';
       if (fs.existsSync(dataPath)) {
         let dataContent = fs.readFileSync(dataPath, 'utf8');
         const dataEventsMatch = dataContent.match(/const\s+events\s*=\s*(\[[\s\S]*?\]);\s*\/\/\s*Kategori/);
@@ -42,7 +42,7 @@ try {
   }
 
   // 3. news_data.js lastUpdated timestamp güncelle
-  const newsPath = './news_data.js';
+  const newsPath = '../data/news_data.js';
   if (fs.existsSync(newsPath)) {
     let newsContent = fs.readFileSync(newsPath, 'utf8');
     const tsLine = '// lastUpdated: ' + today;

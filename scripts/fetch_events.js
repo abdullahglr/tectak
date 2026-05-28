@@ -36,7 +36,7 @@ function download(url) {
     console.log('Downloading events from remote source...');
     const data = await download(REMOTE_URL);
     const json = JSON.parse(data);
-    const outPath = path.resolve(__dirname, 'events.json');
+    const outPath = path.resolve(__dirname, '../data/events.json');
     fs.writeFileSync(outPath, JSON.stringify(json, null, 2), 'utf8');
     console.log('✅ Events saved to events.json');
   } catch (err) {

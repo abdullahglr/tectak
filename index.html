@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <!-- App CSS -->
-  <link rel="stylesheet" href="style.css?v=1.1">
+  <link rel="stylesheet" href="assets/css/style.css?v=2.0">
   
   <!-- Animation Styles & Global Overrides -->
   <style>
@@ -91,7 +91,7 @@
   <header class="header" id="header">
     <div class="container header-inner">
       <a href="#" class="logo-group">
-        <img src="grafikbirleşenleri/LOGO.png" alt="TECTAK Logo">
+        <img src="assets/images/LOGO.png" alt="TECTAK Logo">
         <span>TECTAK</span>
       </a>
       <div class="header-stats">
@@ -190,7 +190,7 @@
               style="color:var(--accent-green);font-weight:bold;">Yükleniyor...</span>
           </div>
         </div>
-        <a href="all_competitions.html" class="view-all-link">Tüm Yarışmalar →</a>
+        <a href="pages/all_competitions.html" class="view-all-link">Tüm Yarışmalar →</a>
       </div>
       <div class="comp-grid reveal-stagger" id="comp-grid"></div>
     </div>
@@ -234,7 +234,7 @@
             <span class="news-last-updated">Yükleniyor...</span>
           </div>
         </div>
-        <a href="all_news.html" class="view-all-link">Tüm Haberler →</a>
+        <a href="pages/all_news.html" class="view-all-link">Tüm Haberler →</a>
       </div>
       <div class="news-grid reveal-stagger" id="news-grid"></div>
     </div>
@@ -367,18 +367,18 @@ Bana dilediğiniz soruyu sorabilirsiniz! (Örn: *\"İstanbul'da hangi robotik et
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
-  <script src="data.js"></script>
-  <script src="news_data.js"></script>
-  <script src="app.js"></script>
-  <script src="ai_assistant.js"></script>
+  <script src="data/data.js"></script>
+  <script src="data/news_data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ai_assistant.js"></script>
   
   <!-- Chart.js Library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="dashboard.js"></script>
+  <script src="js/dashboard.js"></script>
   
   <!-- Three.js Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="liquid_ocean.js"></script>
+  <script src="js/liquid_ocean.js"></script>
   
   <!-- ANIMATION SCRIPT -->
   <script>
@@ -587,7 +587,7 @@ Bana dilediğiniz soruyu sorabilirsiniz! (Örn: *\"İstanbul'da hangi robotik et
         
         // Navigate after transition
         setTimeout(() => {
-          window.location.href = '3d_map.html';
+          window.location.href = 'pages/3d_map.html';
         }, 500); // Match transition duration in CSS
       });
 

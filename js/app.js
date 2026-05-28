@@ -11,7 +11,7 @@ console.log("%c🔗 LinkedIn: https://www.linkedin.com/in/abdullah-g%C3%BCler-2a
 // Load events from local JSON or fallback to data.js
 async function loadEvents() {
   try {
-    const resp = await fetch('./events.json');
+    const resp = await fetch('./data/events.json');
     if (resp.ok) {
       window.events = await resp.json();
       return;
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isFav = state.favorites.includes(String(event.id)) || state.favorites.includes(Number(event.id));
 
       return `<div class="event-card reveal" style="animation-delay:${i * 0.06}s; ${isClosed ? 'opacity:0.6;' : ''}"
-                   data-id="${event.id}" data-url="event.html?id=${event.id}">
+                   data-id="${event.id}" data-url="pages/event.html?id=${event.id}">
         <div class="event-date-block">
           <div class="event-day">${day}</div>
           <div class="event-month">${month}</div>
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="event-actions" style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
           <button class="fav-btn ${isFav ? 'active' : ''}" 
                   data-id="${event.id}" onclick="toggleFavorite(event, '${event.id}')">❤️</button>
-          <a href="event.html?id=${event.id}" class="register-btn" onclick="event.stopPropagation()" style="margin-left:0;">Detaylı Bilgi</a>
+          <a href="pages/event.html?id=${event.id}" class="register-btn" onclick="event.stopPropagation()" style="margin-left:0;">Detaylı Bilgi</a>
         </div>
       </div>`;
     };
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="popup-detail">📍 ${event.location}</div>
             <div class="popup-detail">📅 ${new Date(event.date).getDate()} ${fullMonths[new Date(event.date).getMonth()]} ${new Date(event.date).getFullYear()}</div>
             <div class="popup-detail">🕐 ${event.time}</div>
-            <a href="event.html?id=${event.id}" style="display:block; margin-top:12px; padding:8px; background:linear-gradient(135deg, var(--accent-blue), rgba(0,212,255,0.7)); color:#000; text-align:center; border-radius:4px; text-decoration:none; font-weight:bold; transition:all 0.3s;">Detaylara Git</a>
+            <a href="pages/event.html?id=${event.id}" style="display:block; margin-top:12px; padding:8px; background:linear-gradient(135deg, var(--accent-blue), rgba(0,212,255,0.7)); color:#000; text-align:center; border-radius:4px; text-decoration:none; font-weight:bold; transition:all 0.3s;">Detaylara Git</a>
           `)
           .addTo(state.mapInstance);
         state.markers.push(marker);
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
           detailsContainer.innerHTML = dayEvents.map(e => `
             <div class="cal-detail-card" style="border-left-color: ${(typeof typeColors !== 'undefined' && typeColors[e.type]) || 'var(--accent-blue)'}">
               <div class="cal-detail-info"><h4>${e.title}</h4><p>${e.time} - ${e.location}</p></div>
-              <a href="event.html?id=${e.id}" class="cal-detail-btn">Detay</a>
+              <a href="pages/event.html?id=${e.id}" class="cal-detail-btn">Detay</a>
             </div>`).join('');
         } else {
           detailsContainer.innerHTML = `<p class="empty-msg">${new Date(selectedDate).getDate()} ${fullMonths[new Date(selectedDate).getMonth()]} tarihinde etkinlik bulunmuyor.</p>`;
@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentNews = window.news || [];
     if (!newsGrid || currentNews.length === 0) return;
 
-    if (viewAllLink) viewAllLink.href = 'all_news.html';
+    if (viewAllLink) viewAllLink.href = 'pages/all_news.html';
 
     // Haberleri her zaman güncel göstermek için tarihleri bugüne göre dinamik olarak kaydır
     const today = new Date();
@@ -618,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     newsGrid.innerHTML = filteredHomeNews.map(item => `
-      <div class="news-card reveal" onclick="window.location.href='news.html?id=${item.id}'">
+      <div class="news-card reveal" onclick="window.location.href='pages/news.html?id=${item.id}'">
         <img src="${item.images[0]}" class="news-card-img" alt="${item.title}">
         <div class="news-card-content">
           <div class="news-card-date">${item.date} | ${item.source}</div>
@@ -688,7 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
     compGrid.innerHTML = displayList.map((comp, i) => {
       const isFav = state.favorites.includes(String(comp.id)) || state.favorites.includes(Number(comp.id));
       return `
-      <div class="comp-card reveal" style="animation-delay: ${i * 0.05}s; cursor: pointer;" onclick="window.location.href='competition.html?id=${comp.id}'">
+      <div class="comp-card reveal" style="animation-delay: ${i * 0.05}s; cursor: pointer;" onclick="window.location.href='pages/competition.html?id=${comp.id}'">
         <div class="comp-header">
           <div class="comp-icon">${comp.icon}</div>
           <div class="comp-prize">${comp.prize}</div>
@@ -705,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="comp-actions" style="display:flex; align-items:center; justify-content:space-between; margin-top:20px; gap:8px;">
           <button class="fav-btn ${isFav ? 'active' : ''}" 
                   data-id="${comp.id}" onclick="toggleFavorite(event, '${comp.id}')">❤️</button>
-          <a href="competition.html?id=${comp.id}" class="apply-btn" onclick="event.stopPropagation()" style="margin-top:0; flex-grow:1; text-align:center;">Bilgi Al</a>
+          <a href="pages/competition.html?id=${comp.id}" class="apply-btn" onclick="event.stopPropagation()" style="margin-top:0; flex-grow:1; text-align:center;">Bilgi Al</a>
         </div>
       </div>
     `}).join('');

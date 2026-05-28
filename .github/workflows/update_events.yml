@@ -26,16 +26,16 @@ jobs:
           node-version: '24'
 
       - name: Etkinlik Verilerini Çek
-        run: node fetch_events.js
+        run: node scripts/fetch_events.js
 
       - name: Tarih Bazlı registrationStatus Güncelle
-        run: node update_status.js
+        run: node scripts/update_status.js
 
       - name: Değişiklikleri Commit Et
         run: |
           git config --global user.name "TECTAK Bot"
           git config --global user.email "tectak-bot@github.com"
-          git add events.json data.js news_data.js
+          git add data/events.json data/data.js data/news_data.js
           git diff --quiet && git diff --staged --quiet || \
             git commit -m "🤖 Otomatik: Haftalık veri güncellemesi ($(date -u '+%Y-%m-%d'))"
 

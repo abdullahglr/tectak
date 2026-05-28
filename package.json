@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "TECTAK technology calendar static site",
   "scripts": {
-    "update-events": "node fetch_events.js"
+    "update-events": "node scripts/fetch_events.js"
   },
   "author": "",
   "license": "MIT",

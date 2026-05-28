@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
       eventDataList = window.events;
     } else if (window.location.protocol !== 'file:') {
       try {
-        const resp = await fetch('./events.json');
+        const resp = await fetch('../data/events.json');
         if (resp.ok) {
           eventDataList = await resp.json();
           window.events = eventDataList;
@@ -37,11 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
       detailCard.innerHTML = `<div style="text-align:center; padding: 40px;">
         <h3 style="color: var(--accent-red); margin-bottom: 16px;">Etkinlik bulunamadı veya hatalı bağlantı!</h3>
         <p style="color: var(--text-muted); margin-bottom: 24px;">Lütfen geçerli bir etkinlik seçin.</p>
-        <a href="index.html" class="register-btn-large" style="display:inline-block;">Ana Sayfaya Dön</a>
+        <a href="../index.html" class="register-btn-large" style="display:inline-block;">Ana Sayfaya Dön</a>
       </div>`;
       setTimeout(() => {
         if (window.location.pathname.includes('event')) {
-          window.location.href = 'index.html';
+          window.location.href = '../index.html';
         }
       }, 4000);
       return;
