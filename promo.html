@@ -3,429 +3,648 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TECTAK — Yenilikler Tanıtımı</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+  <title>TECTAK — Proje Tanıtım Sunumu</title>
+  <meta name="description" content="TECTAK Teknoloji Takvimi — Türkiye'nin tek merkezi teknoloji etkinlik platformu sunumu.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #030811;
-      --text-primary: #ffffff;
-      --text-muted: #8ba2b5;
-      --accent-green: #00ff88;
-      --accent-blue: #00d4ff;
-      --accent-purple: #9d4edd;
-      --glass-bg: rgba(11, 25, 44, 0.6);
-      --glass-border: rgba(255, 255, 255, 0.05);
+      --bg: #030811;
+      --text: #ffffff;
+      --muted: #7b8da6;
+      --green: #00ff88;
+      --blue: #00d4ff;
+      --purple: #9d4edd;
+      --pink: #ff007f;
+      --glass: rgba(11, 25, 44, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      --radius: 20px;
     }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Outfit', sans-serif;
-    }
+    /* ===== BG GLOWS ===== */
+    .bg-glows { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+    .glow { position:absolute; border-radius:50%; filter:blur(100px); opacity:0.12; animation:gFloat 12s infinite alternate ease-in-out; }
+    .g1 { width:500px; height:500px; background:var(--green); top:-150px; left:-100px; }
+    .g2 { width:600px; height:600px; background:var(--blue); bottom:-200px; right:-200px; animation-delay:-4s; }
+    .g3 { width:350px; height:350px; background:var(--purple); top:50%; left:50%; transform:translate(-50%,-50%); animation-delay:-7s; }
+    @keyframes gFloat { 0%{transform:translate(0,0) scale(1);} 100%{transform:translate(60px,40px) scale(1.15);} }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-primary);
-      overflow: hidden;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--green),var(--blue)); z-index:1000; transition:width .6s cubic-bezier(.4,0,.2,1); }
 
-    /* Background Animation */
-    .bg-glows {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      z-index: 1;
-      overflow: hidden;
-    }
+    /* ===== SKIP BTN ===== */
+    .skip-btn { position:fixed; top:20px; right:20px; z-index:1000; background:rgba(255,255,255,0.06); border:1px solid var(--glass-border); color:var(--muted); padding:8px 18px; border-radius:30px; font-size:.85rem; cursor:pointer; backdrop-filter:blur(8px); transition:.3s; text-decoration:none; font-family:'Inter',sans-serif; }
+    .skip-btn:hover { color:#fff; border-color:var(--blue); }
 
-    .glow {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.15;
-      animation: float 10s infinite alternate ease-in-out;
-    }
+    /* ===== SCENE COUNTER ===== */
+    .scene-counter { position:fixed; top:22px; left:20px; z-index:1000; font-size:.85rem; color:var(--muted); font-family:'Outfit',sans-serif; font-weight:600; }
+    .scene-counter .cur { color:var(--blue); font-size:1.1rem; }
 
-    .glow-1 {
-      width: 400px;
-      height: 400px;
-      background: var(--accent-green);
-      top: -100px;
-      left: -100px;
-    }
+    /* ===== CONTROLS ===== */
+    .controls { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:1000; display:flex; align-items:center; gap:16px; }
+    .dots { display:flex; gap:6px; }
+    .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.15); transition:.4s; cursor:pointer; }
+    .dot.active { width:28px; border-radius:4px; background:var(--blue); }
+    .nav-arrow { background:none; border:1px solid var(--glass-border); color:var(--muted); width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:.3s; backdrop-filter:blur(5px); }
+    .nav-arrow:hover { border-color:var(--blue); color:var(--blue); }
+    .auto-btn { background:none; border:1px solid var(--glass-border); color:var(--muted); padding:6px 14px; border-radius:20px; cursor:pointer; font-size:.75rem; transition:.3s; font-family:'Inter',sans-serif; backdrop-filter:blur(5px); }
+    .auto-btn:hover, .auto-btn.playing { border-color:var(--green); color:var(--green); }
 
-    .glow-2 {
-      width: 500px;
-      height: 500px;
-      background: var(--accent-blue);
-      bottom: -150px;
-      right: -150px;
-      animation-delay: -3s;
-    }
+    /* ===== MAIN CONTAINER ===== */
+    .slider { position:relative; width:100%; height:100vh; z-index:10; }
 
-    .glow-3 {
-      width: 300px;
-      height: 300px;
-      background: var(--accent-purple);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation-delay: -5s;
-    }
+    /* ===== SCENES ===== */
+    .scene { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:60px 30px 100px; opacity:0; transform:translateY(30px) scale(.97); transition:all .7s cubic-bezier(.4,0,.2,1); pointer-events:none; }
+    .scene.active { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+    .scene.exit-up { opacity:0; transform:translateY(-30px) scale(.97); }
 
-    @keyframes float {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(50px, 50px) scale(1.1); }
-    }
+    /* ===== TYPOGRAPHY ===== */
+    .scene h1 { font-family:'Outfit',sans-serif; font-size:clamp(2rem,5vw,3.5rem); font-weight:900; line-height:1.15; margin-bottom:16px; }
+    .scene h2 { font-family:'Outfit',sans-serif; font-size:clamp(1.6rem,4vw,2.5rem); font-weight:700; margin-bottom:12px; }
+    .scene p { font-size:clamp(.95rem,2vw,1.2rem); color:var(--muted); max-width:650px; line-height:1.7; }
+    .grad { background:linear-gradient(135deg,var(--green),var(--blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 
-    /* Main Container */
-    .promo-container {
-      position: relative;
-      z-index: 10;
-      width: 90%;
-      max-width: 800px;
-      height: 500px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      overflow: hidden;
-    }
+    /* ===== GLASS PANEL ===== */
+    .glass { background:var(--glass); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:var(--radius); padding:30px; box-shadow:0 20px 50px rgba(0,0,0,.4); }
 
-    /* Scenes */
-    .scene {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 40px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-    }
+    /* ===== CTA BTN ===== */
+    .cta { display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg,var(--green),var(--blue)); color:#030811; font-weight:700; font-size:1.05rem; border:none; padding:14px 34px; border-radius:14px; cursor:pointer; transition:.3s; box-shadow:0 10px 30px rgba(0,212,255,.25); text-decoration:none; font-family:'Outfit',sans-serif; }
+    .cta:hover { transform:translateY(-3px); box-shadow:0 15px 35px rgba(0,212,255,.35); }
+    .cta-outline { background:transparent; border:2px solid var(--blue); color:var(--blue); box-shadow:none; }
+    .cta-outline:hover { background:var(--blue); color:#030811; }
 
-    .scene.active {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
+    /* ===== VISUAL CONTAINERS ===== */
+    .visual { margin-top:36px; position:relative; display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:wrap; }
 
-    .scene.exit {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
+    /* ===== SCENE SPECIFICS ===== */
 
-    /* Typography */
-    .gradient-text {
-      background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 900;
-    }
+    /* Scene 0: Hero */
+    .hero-logo { width:80px; height:80px; margin-bottom:16px; animation:logoPulse 3s ease-in-out infinite; filter:drop-shadow(0 0 20px rgba(0,255,136,.4)); }
+    @keyframes logoPulse { 0%,100%{transform:scale(1);filter:drop-shadow(0 0 20px rgba(0,255,136,.4));} 50%{transform:scale(1.08);filter:drop-shadow(0 0 35px rgba(0,255,136,.7));} }
+    .hero-sub { font-size:1.1rem; color:var(--muted); margin-bottom:28px; letter-spacing:2px; text-transform:uppercase; font-weight:300; }
 
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 16px;
-      line-height: 1.2;
-    }
+    /* Scene 1: Problem */
+    .prob-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:700px; }
+    .prob-card { padding:24px; border-radius:16px; text-align:left; }
+    .prob-card.problem { background:rgba(255,0,127,.08); border:1px solid rgba(255,0,127,.2); }
+    .prob-card.solution { background:rgba(0,255,136,.08); border:1px solid rgba(0,255,136,.2); }
+    .prob-card h3 { font-family:'Outfit',sans-serif; font-size:1.1rem; margin-bottom:10px; }
+    .prob-card.problem h3 { color:var(--pink); }
+    .prob-card.solution h3 { color:var(--green); }
+    .prob-card p { font-size:.9rem; color:var(--muted); line-height:1.6; }
+    .prob-card ul { list-style:none; padding:0; }
+    .prob-card ul li { font-size:.88rem; color:var(--muted); padding:4px 0; }
+    .prob-card ul li::before { content:'✕ '; color:var(--pink); font-weight:700; }
+    .prob-card.solution ul li::before { content:'✓ '; color:var(--green); }
 
-    p {
-      font-size: 1.2rem;
-      color: var(--text-muted);
-      max-width: 600px;
-      line-height: 1.6;
-    }
+    /* Scene 2: Stats */
+    .stats-row { display:flex; gap:30px; flex-wrap:wrap; justify-content:center; }
+    .stat-box { text-align:center; min-width:120px; }
+    .stat-num { font-family:'Outfit',sans-serif; font-size:3rem; font-weight:900; line-height:1; }
+    .stat-num.c1 { color:var(--green); }
+    .stat-num.c2 { color:var(--blue); }
+    .stat-num.c3 { color:var(--purple); }
+    .stat-num.c4 { color:var(--pink); }
+    .stat-label { font-size:.85rem; color:var(--muted); margin-top:6px; }
 
-    /* Feature Specific Visuals */
-    .feature-visual {
-      margin-top: 30px;
-      position: relative;
-      width: 100%;
-      height: 150px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    /* Scene 3: Search */
+    .mock-search { width:100%; max-width:500px; background:rgba(255,255,255,.05); border:1px solid var(--glass-border); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:12px; }
+    .mock-search .icon { font-size:1.2rem; opacity:.5; }
+    .typing-text { font-size:1rem; color:var(--muted); border-right:2px solid var(--blue); padding-right:4px; white-space:nowrap; overflow:hidden; font-family:'Inter',sans-serif; }
+    .filter-chips { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:16px; }
+    .chip { padding:8px 16px; border-radius:20px; font-size:.8rem; border:1px solid var(--glass-border); color:var(--muted); background:rgba(255,255,255,.03); transition:.3s; }
+    .chip.active { border-color:var(--green); color:var(--green); background:rgba(0,255,136,.08); }
 
-    /* Scene 1: Globe */
-    .globe-wireframe {
-      width: 100px;
-      height: 100px;
-      border: 2px solid var(--accent-green);
-      border-radius: 50%;
-      position: relative;
-      animation: rotate 5s linear infinite;
-      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-    }
+    /* Scene 4: Map Globe */
+    .globe { width:140px; height:140px; border:2px solid var(--green); border-radius:50%; position:relative; animation:globeSpin 8s linear infinite; box-shadow:0 0 30px rgba(0,255,136,.2); }
+    .globe::before,.globe::after { content:''; position:absolute; inset:-2px; border:1px solid rgba(0,212,255,.4); border-radius:50%; }
+    .globe::before { transform:rotateY(60deg); }
+    .globe::after { transform:rotateY(120deg); }
+    @keyframes globeSpin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+    .map-modes { display:flex; gap:10px; margin-top:20px; }
+    .map-mode { padding:10px 18px; border-radius:12px; font-size:.85rem; background:rgba(255,255,255,.04); border:1px solid var(--glass-border); color:var(--muted); transition:.3s; }
+    .map-mode.hl { border-color:var(--blue); color:var(--blue); background:rgba(0,212,255,.08); }
 
-    .globe-wireframe::before, .globe-wireframe::after {
-      content: '';
-      position: absolute;
-      inset: -2px;
-      border: 1px solid var(--accent-blue);
-      border-radius: 50%;
-    }
+    /* Scene 5: Calendar */
+    .mini-cal { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; max-width:280px; }
+    .cal-day { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.75rem; color:var(--muted); background:rgba(255,255,255,.03); transition:.3s; }
+    .cal-day.has-event { background:rgba(0,212,255,.15); color:var(--blue); border:1px solid rgba(0,212,255,.3); }
+    .cal-day.today { background:rgba(0,255,136,.2); color:var(--green); font-weight:700; border:1px solid var(--green); }
+    .cal-header { font-size:.7rem; color:var(--muted); opacity:.6; font-weight:600; }
 
-    .globe-wireframe::before { transform: rotateY(60deg); }
-    .globe-wireframe::after { transform: rotateY(120deg); }
+    /* Scene 6: News */
+    .news-ticker { overflow:hidden; max-width:500px; width:100%; }
+    .news-scroll { display:flex; gap:16px; animation:tickerScroll 20s linear infinite; }
+    .news-card-mini { min-width:220px; background:var(--glass); border:1px solid var(--glass-border); border-radius:14px; padding:16px; text-align:left; flex-shrink:0; }
+    .news-card-mini h4 { font-size:.85rem; margin-bottom:6px; color:#fff; font-family:'Outfit',sans-serif; }
+    .news-card-mini p { font-size:.75rem; color:var(--muted); }
+    @keyframes tickerScroll { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
 
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+    /* Scene 7: Dashboard */
+    .chart-bars { display:flex; align-items:flex-end; gap:12px; height:120px; }
+    .bar { width:40px; border-radius:8px 8px 0 0; transition:height 1s cubic-bezier(.4,0,.2,1); position:relative; }
+    .bar-label { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); font-size:.65rem; color:var(--muted); white-space:nowrap; }
+    .bar-val { position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:.7rem; font-weight:700; }
 
-    /* Scene 2: Grid/Cards */
-    .cards-visual {
-      display: flex;
-      gap: 15px;
-    }
+    /* Scene 8: AI Chat */
+    .chat-demo { max-width:400px; width:100%; }
+    .chat-bubble { padding:14px 18px; border-radius:16px; margin-bottom:10px; font-size:.9rem; line-height:1.5; animation:bubbleIn .5s ease both; }
+    .chat-bubble.user { background:rgba(0,212,255,.12); border:1px solid rgba(0,212,255,.2); margin-left:40px; text-align:right; color:#ddd; }
+    .chat-bubble.bot { background:var(--glass); border:1px solid var(--glass-border); margin-right:40px; text-align:left; color:var(--muted); }
+    .chat-bubble.bot strong { color:var(--green); }
+    @keyframes bubbleIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+    .chat-bubble:nth-child(2) { animation-delay:.3s; }
+    .chat-bubble:nth-child(3) { animation-delay:.6s; }
 
-    .mini-card {
-      width: 80px;
-      height: 100px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 10px;
-      transform: translateY(20px);
-      opacity: 0;
-    }
+    /* Scene 9: 3D */
+    .particles-container { width:200px; height:200px; position:relative; }
+    .particle { position:absolute; width:4px; height:4px; background:var(--green); border-radius:50%; opacity:.6; animation:particleFloat 4s infinite ease-in-out; }
+    @keyframes particleFloat { 0%,100%{transform:translate(0,0) scale(1);opacity:.3;} 50%{transform:translate(var(--dx),var(--dy)) scale(1.5);opacity:.8;} }
 
-    .scene.active .mini-card {
-      animation: popIn 0.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
+    /* Scene 10: Tech Stack */
+    .tech-grid { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; max-width:500px; }
+    .tech-badge { padding:10px 18px; border-radius:12px; font-size:.85rem; font-weight:600; border:1px solid var(--glass-border); background:rgba(255,255,255,.04); color:#ddd; transition:.3s; display:flex; align-items:center; gap:8px; }
+    .tech-badge:hover { border-color:var(--blue); transform:translateY(-2px); }
+    .tech-dot { width:8px; height:8px; border-radius:50%; }
 
-    .scene.active .mini-card:nth-child(1) { animation-delay: 0.2s; }
-    .scene.active .mini-card:nth-child(2) { animation-delay: 0.4s; }
-    .scene.active .mini-card:nth-child(3) { animation-delay: 0.6s; }
+    /* Scene 11: Final */
+    .final-links { display:flex; gap:14px; margin-top:20px; flex-wrap:wrap; justify-content:center; }
+    .dev-credit { margin-top:30px; font-size:.9rem; color:var(--muted); }
+    .dev-credit a { color:var(--blue); text-decoration:none; font-weight:600; }
+    .dev-credit a:hover { color:var(--green); }
 
-    @keyframes popIn {
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .card-bar {
-      height: 6px;
-      background: var(--accent-blue);
-      border-radius: 3px;
-      width: 70%;
-      margin-bottom: 5px;
-    }
-    .card-bar.short { width: 40%; background: var(--accent-green); }
-
-    /* Scene 3: Checkmark */
-    .success-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: rgba(0, 255, 136, 0.1);
-      border: 2px solid var(--accent-green);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 2rem;
-      color: var(--accent-green);
-      box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
-    }
-
-    /* Controls */
-    .controls {
-      position: absolute;
-      bottom: 30px;
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-
-    .btn {
-      background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
-      color: #030811;
-      border: none;
-      padding: 12px 28px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 20px rgba(0, 212, 255, 0.2);
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 25px rgba(0, 212, 255, 0.3);
-    }
-
-    .dots {
-      display: flex;
-      gap: 8px;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      transition: all 0.3s ease;
-    }
-
-    .dot.active {
-      background: var(--accent-blue);
-      width: 24px;
-      border-radius: 4px;
-    }
-
-    /* Skip Btn */
-    .skip-btn {
-      position: absolute;
-      top: 30px;
-      right: 30px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: color 0.3s;
-    }
-
-    .skip-btn:hover {
-      color: var(--text-primary);
+    /* ===== RESPONSIVE ===== */
+    @media (max-width:768px) {
+      .prob-grid { grid-template-columns:1fr; }
+      .stats-row { gap:20px; }
+      .stat-num { font-size:2.2rem; }
+      .controls { bottom:20px; }
+      .chart-bars { height:80px; }
+      .bar { width:28px; }
+      .scene { padding:50px 20px 90px; }
+      .globe { width:100px; height:100px; }
     }
   </style>
 </head>
 <body>
 
   <div class="bg-glows">
-    <div class="glow glow-1"></div>
-    <div class="glow glow-2"></div>
-    <div class="glow glow-3"></div>
+    <div class="glow g1"></div>
+    <div class="glow g2"></div>
+    <div class="glow g3"></div>
   </div>
 
-  <div class="promo-container">
-    <button class="skip-btn" id="skip-btn">Atla ✕</button>
+  <div class="progress-bar" id="progress"></div>
 
-    <!-- SCENE 0: Giriş -->
-    <div class="scene active" id="scene-0">
-      <h1><span class="gradient-text">TECTAK</span> Yenilendi!</h1>
-      <p>Son 48 saatte platformumuza eklediğimiz harika özellikleri keşfetmeye hazır mısınız?</p>
-      <div class="feature-visual">
-        <button class="btn" id="start-btn">Hadi Başlayalım</button>
+  <div class="scene-counter" id="counter"><span class="cur">1</span> / 12</div>
+
+  <a href="index.html" class="skip-btn">Atla ✕</a>
+
+  <div class="slider" id="slider">
+
+    <!-- SCENE 0: HERO -->
+    <div class="scene active" data-index="0">
+      <img src="grafikbirleşenleri/LOGO.png" alt="TECTAK Logo" class="hero-logo">
+      <div class="hero-sub">Proje Tanıtım Sunumu</div>
+      <h1><span class="grad">Türkiye'nin</span><br>Teknoloji Nabzı</h1>
+      <p>Tüm teknoloji etkinliklerini, yarışmaları ve haberleri tek platformda keşfedin.</p>
+      <div class="visual">
+        <button class="cta" id="start-btn">Keşfetmeye Başla →</button>
       </div>
     </div>
 
-    <!-- SCENE 1: 3D Harita -->
-    <div class="scene" id="scene-1">
-      <h1>3D Harita <span class="gradient-text">Deneyimi</span></h1>
-      <p>Etkinlikleri artık sadece listede değil, interaktif bir 3D küre üzerinde derinlemesine keşfedebilirsiniz.</p>
-      <div class="feature-visual">
-        <div class="globe-wireframe"></div>
-      </div>
-    </div>
-
-    <!-- SCENE 2: Yarışmalar -->
-    <div class="scene" id="scene-2">
-      <h1>Ulusal <span class="gradient-text">Yarışmalar</span></h1>
-      <p>Teknoloji yarışmalarını kaçırmayın! Özel olarak tasarlanmış yarışma kartları ve filtrelerle her şey elinizin altında.</p>
-      <div class="feature-visual">
-        <div class="cards-visual">
-          <div class="mini-card"><div class="card-bar"></div><div class="card-bar short"></div></div>
-          <div class="mini-card" style="border-color: var(--accent-green);"><div class="card-bar" style="background:var(--accent-green);"></div><div class="card-bar short"></div></div>
-          <div class="mini-card"><div class="card-bar"></div><div class="card-bar short"></div></div>
+    <!-- SCENE 1: PROBLEM & SOLUTION -->
+    <div class="scene" data-index="1">
+      <h2>Neden <span class="grad">TECTAK?</span></h2>
+      <p style="margin-bottom:24px;">Türkiye'nin teknoloji ekosisteminde bir boşluk var.</p>
+      <div class="prob-grid">
+        <div class="prob-card problem">
+          <h3>❌ Problem</h3>
+          <ul>
+            <li>Etkinlikler onlarca sitede dağınık</li>
+            <li>Merkezi bir platform yok</li>
+            <li>Tarih/konum takibi zor</li>
+            <li>Yarışma deadlineları kaçırılıyor</li>
+            <li>Harita görünümü yok</li>
+          </ul>
+        </div>
+        <div class="prob-card solution">
+          <h3>✅ TECTAK Çözümü</h3>
+          <ul>
+            <li>Tek merkezi platform</li>
+            <li>Akıllı filtreleme sistemi</li>
+            <li>İnteraktif harita + takvim</li>
+            <li>Otomatik güncelleme</li>
+            <li>AI asistan desteği</li>
+          </ul>
         </div>
       </div>
     </div>
 
-    <!-- SCENE 3: Otomatik Güncelleme -->
-    <div class="scene" id="scene-3">
-      <h1>Canlı & <span class="gradient-text">Otomatik</span></h1>
-      <p>Arka planda çalışan sistemlerimiz sayesinde etkinlikler ve haberler her zaman güncel kalıyor.</p>
-      <div class="feature-visual">
-        <div class="success-icon">✓</div>
+    <!-- SCENE 2: STATS -->
+    <div class="scene" data-index="2">
+      <h2>Kapsamlı <span class="grad">Veritabanı</span></h2>
+      <p style="margin-bottom:30px;">Türkiye genelinden derlenen canlı veriler</p>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num c1" data-target="22" data-suffix="+">0</div>
+          <div class="stat-label">Etkinlik</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num c2" data-target="10" data-suffix="+">0</div>
+          <div class="stat-label">Yarışma</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num c3" data-target="10" data-suffix="+">0</div>
+          <div class="stat-label">Haber</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num c4" data-target="8" data-suffix="">0</div>
+          <div class="stat-label">Şehir</div>
+        </div>
+      </div>
+      <div class="filter-chips" style="margin-top:24px;">
+        <span class="chip active">Savunma</span>
+        <span class="chip">Yazılım</span>
+        <span class="chip">Robotik</span>
+        <span class="chip">Elektronik</span>
+        <span class="chip">Yapay Zeka</span>
       </div>
     </div>
 
-    <div class="controls" id="controls" style="display: none;">
-      <div class="dots">
-        <div class="dot active" data-index="1"></div>
-        <div class="dot" data-index="2"></div>
-        <div class="dot" data-index="3"></div>
+    <!-- SCENE 3: SEARCH -->
+    <div class="scene" data-index="3">
+      <h2>Gelişmiş <span class="grad">Arama & Filtreleme</span></h2>
+      <p style="margin-bottom:28px;">Saniyeler içinde aradığınız etkinliğe ulaşın</p>
+      <div class="visual" style="flex-direction:column;">
+        <div class="mock-search">
+          <span class="icon">🔍</span>
+          <span class="typing-text" id="typing-text"></span>
+        </div>
+        <div class="filter-chips">
+          <span class="chip active">📍 Tüm Şehirler</span>
+          <span class="chip">💰 Ücretsiz</span>
+          <span class="chip">📅 Bu Ay</span>
+          <span class="chip">🏷️ Robotik</span>
+        </div>
       </div>
     </div>
+
+    <!-- SCENE 4: MAP -->
+    <div class="scene" data-index="4">
+      <h2>İnteraktif <span class="grad">Harita Deneyimi</span></h2>
+      <p>3 farklı görüntüleme modu ile etkinlikleri keşfedin</p>
+      <div class="visual" style="flex-direction:column;">
+        <div class="globe"></div>
+        <div class="map-modes">
+          <div class="map-mode hl">📌 Pin Modu</div>
+          <div class="map-mode">🔥 Isı Haritası</div>
+          <div class="map-mode">🌐 3D Küre</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 5: CALENDAR -->
+    <div class="scene" data-index="5">
+      <h2>Aylık <span class="grad">İnteraktif Takvim</span></h2>
+      <p style="margin-bottom:24px;">Etkinlikleri takvim üzerinde takip edin</p>
+      <div class="visual" style="flex-direction:column;">
+        <div class="glass" style="padding:20px;">
+          <div style="text-align:center;margin-bottom:12px;font-family:'Outfit',sans-serif;font-weight:700;color:var(--blue);">Mayıs 2026</div>
+          <div class="mini-cal" id="mini-cal"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 6: NEWS -->
+    <div class="scene" data-index="6">
+      <h2>Canlı <span class="grad">Teknoloji Haberleri</span></h2>
+      <p style="margin-bottom:24px;">Güncel haberleri takip edin, paylaşın</p>
+      <div class="visual" style="flex-direction:column;">
+        <div class="news-ticker">
+          <div class="news-scroll" id="news-scroll"></div>
+        </div>
+        <div class="filter-chips" style="margin-top:16px;">
+          <span class="chip">📰 10+ Haber</span>
+          <span class="chip">🔄 2 Saatlik Güncelleme</span>
+          <span class="chip">📱 Sosyal Paylaşım</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 7: DASHBOARD -->
+    <div class="scene" data-index="7">
+      <h2>İstatistik <span class="grad">Dashboard</span></h2>
+      <p style="margin-bottom:28px;">Veri analizleri ve trend grafikleri</p>
+      <div class="visual" style="flex-direction:column;">
+        <div class="glass" style="padding:24px;">
+          <div style="font-size:.85rem;color:var(--muted);margin-bottom:14px;text-align:left;font-family:'Outfit',sans-serif;">Şehir Bazlı Etkinlik Yoğunluğu</div>
+          <div class="chart-bars" id="chart-bars"></div>
+        </div>
+        <div class="filter-chips" style="margin-top:14px;">
+          <span class="chip">🍩 Kategori</span>
+          <span class="chip">📊 Şehir</span>
+          <span class="chip">🥧 Fiyat</span>
+          <span class="chip">📈 Özet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 8: AI -->
+    <div class="scene" data-index="8">
+      <h2>TECTAK <span class="grad">AI Asistanı</span></h2>
+      <p style="margin-bottom:24px;">Doğal dilde soru sorun, anında cevap alın</p>
+      <div class="visual">
+        <div class="chat-demo glass" id="chat-demo">
+          <div class="chat-bubble user">İstanbul'da hangi robotik etkinlikleri var?</div>
+          <div class="chat-bubble bot">🤖 İstanbul'da <strong>3 robotik etkinlik</strong> bulunuyor:<br>• SAHA EXPO — 10 Mayıs<br>• RoboFest — 22 Haziran<br>• MakerFaire — 15 Temmuz</div>
+          <div class="chat-bubble user">Ücretsiz olanları gösterir misin?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 9: 3D -->
+    <div class="scene" data-index="9">
+      <h2>3D Görsel <span class="grad">Deneyim</span></h2>
+      <p style="margin-bottom:24px;">Three.js ile hayat bulan arka planlar</p>
+      <div class="visual" style="flex-direction:column;">
+        <div class="particles-container" id="particles"></div>
+        <div class="filter-chips" style="margin-top:20px;">
+          <span class="chip">🌊 Liquid Ocean</span>
+          <span class="chip">🌐 Particle Globe</span>
+          <span class="chip">✨ GLSL Shaders</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 10: TECH STACK -->
+    <div class="scene" data-index="10">
+      <h2>Teknoloji <span class="grad">Altyapısı</span></h2>
+      <p style="margin-bottom:24px;">Modern ve güçlü bir teknoloji yığını</p>
+      <div class="visual">
+        <div class="tech-grid">
+          <div class="tech-badge"><span class="tech-dot" style="background:#e34f26;"></span>HTML5</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:#1572b6;"></span>CSS3</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:#f7df1e;"></span>JavaScript ES6+</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:#000;"></span>Three.js</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:#199900;"></span>Leaflet.js</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:var(--blue);"></span>MapLibre GL</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:#ff6384;"></span>Chart.js</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:#2088ff;"></span>GitHub Actions</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:#222;"></span>GitHub Pages</div>
+          <div class="tech-badge"><span class="tech-dot" style="background:var(--purple);"></span>Pollinations AI</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 11: FINAL CTA -->
+    <div class="scene" data-index="11">
+      <img src="grafikbirleşenleri/LOGO.png" alt="TECTAK" class="hero-logo">
+      <h1><span class="grad">Hemen Keşfedin</span></h1>
+      <p>Türkiye'nin tek merkezi teknoloji etkinlik platformu sizi bekliyor.</p>
+      <div class="final-links">
+        <a href="index.html" class="cta">🚀 Platformu Keşfet</a>
+        <a href="https://github.com/abdullahglr/tectak" target="_blank" class="cta cta-outline">⭐ GitHub</a>
+      </div>
+      <div class="dev-credit">
+        Geliştirici: <a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank">Abdullah GÜLER</a> · © 2026
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls" id="controls">
+    <button class="nav-arrow" id="prev-btn">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-arrow" id="next-btn">›</button>
+    <button class="auto-btn" id="auto-btn">▶ Otomatik</button>
   </div>
 
   <script>
+    // ===== SLIDER ENGINE =====
     const scenes = document.querySelectorAll('.scene');
-    const dots = document.querySelectorAll('.dot');
-    const startBtn = document.getElementById('start-btn');
-    const skipBtn = document.getElementById('skip-btn');
-    const controls = document.getElementById('controls');
-    
+    const totalScenes = scenes.length;
     let currentScene = 0;
-    let interval = null;
+    let autoInterval = null;
+    let isAutoPlaying = false;
+    let touchStartX = 0;
 
-    function showScene(index) {
-      scenes.forEach(s => s.classList.remove('active', 'exit'));
-      
-      if (index > 0) {
-        scenes[index - 1].classList.add('exit');
-      }
-      
-      scenes[index].classList.add('active');
-      
-      // Update dots
-      if (index > 0) {
-        dots.forEach(d => d.classList.remove('active'));
-        const dot = document.querySelector(`.dot[data-index="${index}"]`);
-        if (dot) dot.classList.add('active');
-      }
+    const progress = document.getElementById('progress');
+    const counter = document.getElementById('counter');
+    const dotsContainer = document.getElementById('dots');
+    const autoBtn = document.getElementById('auto-btn');
 
+    // Generate dots
+    for (let i = 0; i < totalScenes; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => goTo(i));
+      dotsContainer.appendChild(dot);
+    }
+
+    function updateUI() {
+      // Progress bar
+      progress.style.width = ((currentScene + 1) / totalScenes * 100) + '%';
+      // Counter
+      counter.innerHTML = '<span class="cur">' + (currentScene + 1) + '</span> / ' + totalScenes;
+      // Dots
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.toggle('active', i === currentScene);
+      });
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= totalScenes || index === currentScene) return;
+      const dir = index > currentScene ? 'up' : 'down';
+      scenes[currentScene].classList.remove('active');
+      scenes[currentScene].classList.add(dir === 'up' ? 'exit-up' : '');
+      setTimeout(() => scenes[currentScene === index ? currentScene : (dir === 'up' ? currentScene : currentScene)].classList.remove('exit-up'), 100);
+
+      scenes.forEach(s => { s.classList.remove('active', 'exit-up'); });
       currentScene = index;
+      scenes[currentScene].classList.add('active');
+      updateUI();
+      triggerSceneAnim(currentScene);
     }
 
-    function startSequence() {
-      showScene(1);
-      controls.style.display = 'flex';
-      
-      interval = setInterval(() => {
-        let next = currentScene + 1;
-        if (next < scenes.length) {
-          showScene(next);
-        } else {
-          clearInterval(interval);
-          setTimeout(() => {
-            window.location.href = 'index.html'; // Go back to home
-          }, 2000);
+    function next() { goTo(Math.min(currentScene + 1, totalScenes - 1)); }
+    function prev() { goTo(Math.max(currentScene - 1, 0)); }
+
+    // Controls
+    document.getElementById('start-btn').addEventListener('click', () => goTo(1));
+    document.getElementById('prev-btn').addEventListener('click', prev);
+    document.getElementById('next-btn').addEventListener('click', next);
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
+    });
+
+    // Mouse wheel (debounced)
+    let wheelTimeout = null;
+    document.addEventListener('wheel', (e) => {
+      if (wheelTimeout) return;
+      wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 800);
+      if (e.deltaY > 0) next(); else prev();
+    }, { passive: true });
+
+    // Touch swipe
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 60) { diff > 0 ? next() : prev(); }
+    }, { passive: true });
+
+    // Auto play
+    autoBtn.addEventListener('click', () => {
+      if (isAutoPlaying) {
+        clearInterval(autoInterval);
+        isAutoPlaying = false;
+        autoBtn.textContent = '▶ Otomatik';
+        autoBtn.classList.remove('playing');
+      } else {
+        isAutoPlaying = true;
+        autoBtn.textContent = '⏸ Durdur';
+        autoBtn.classList.add('playing');
+        autoInterval = setInterval(() => {
+          if (currentScene < totalScenes - 1) next();
+          else { clearInterval(autoInterval); isAutoPlaying = false; autoBtn.textContent = '▶ Otomatik'; autoBtn.classList.remove('playing'); }
+        }, 5000);
+      }
+    });
+
+    // ===== SCENE ANIMATIONS =====
+    function triggerSceneAnim(index) {
+      // Scene 2: Counter animation
+      if (index === 2) {
+        document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+          const target = parseInt(el.dataset.target);
+          const suffix = el.dataset.suffix || '';
+          let current = 0;
+          const step = Math.ceil(target / 40);
+          const interval = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(interval); }
+            el.textContent = current + suffix;
+          }, 40);
+        });
+
+        // Animate category chips
+        let chipIdx = 0;
+        const chips = document.querySelectorAll('[data-index="2"] .chip');
+        const chipInterval = setInterval(() => {
+          chips.forEach(c => c.classList.remove('active'));
+          chips[chipIdx % chips.length].classList.add('active');
+          chipIdx++;
+          if (chipIdx > chips.length * 2) clearInterval(chipInterval);
+        }, 800);
+      }
+
+      // Scene 3: Typing animation
+      if (index === 3) {
+        const texts = ['TEKNOFEST 2026...', 'İstanbul robotik...', 'Ücretsiz seminer...', 'Yapay zeka fuarı...'];
+        const typingEl = document.getElementById('typing-text');
+        let txtIdx = 0, charIdx = 0, isDeleting = false;
+        function typeLoop() {
+          const txt = texts[txtIdx];
+          if (!isDeleting) {
+            typingEl.textContent = txt.substring(0, charIdx + 1);
+            charIdx++;
+            if (charIdx === txt.length) { isDeleting = true; setTimeout(typeLoop, 1500); return; }
+          } else {
+            typingEl.textContent = txt.substring(0, charIdx - 1);
+            charIdx--;
+            if (charIdx === 0) { isDeleting = false; txtIdx = (txtIdx + 1) % texts.length; }
+          }
+          setTimeout(typeLoop, isDeleting ? 40 : 80);
         }
-      }, 4000); // Change scene every 4 seconds
+        typeLoop();
+      }
+
+      // Scene 7: Bar chart animation
+      if (index === 7) {
+        const data = [
+          { label: 'İstanbul', val: 8, color: 'var(--green)' },
+          { label: 'Ankara', val: 5, color: 'var(--blue)' },
+          { label: 'İzmir', val: 3, color: 'var(--purple)' },
+          { label: 'Antalya', val: 2, color: 'var(--pink)' },
+          { label: 'Bursa', val: 2, color: '#FFD93D' },
+        ];
+        const bars = document.getElementById('chart-bars');
+        bars.innerHTML = '';
+        const maxVal = Math.max(...data.map(d => d.val));
+        data.forEach((d, i) => {
+          const bar = document.createElement('div');
+          bar.className = 'bar';
+          bar.style.background = d.color;
+          bar.style.height = '0px';
+          bar.innerHTML = '<span class="bar-val" style="color:' + d.color + '">' + d.val + '</span><span class="bar-label">' + d.label + '</span>';
+          bars.appendChild(bar);
+          setTimeout(() => { bar.style.height = (d.val / maxVal * 100) + 'px'; }, 100 + i * 100);
+        });
+      }
     }
 
-    startBtn.addEventListener('click', () => {
-      startBtn.style.display = 'none';
-      startSequence();
-    });
+    // ===== INIT VISUALS =====
 
-    skipBtn.addEventListener('click', () => {
-      clearInterval(interval);
-      window.location.href = 'index.html';
-    });
+    // Mini Calendar
+    (function() {
+      const cal = document.getElementById('mini-cal');
+      const days = ['Pt','Sa','Ça','Pe','Cu','Ct','Pz'];
+      const eventDays = [3,10,15,18,22,24,28];
+      days.forEach(d => { const el = document.createElement('div'); el.className = 'cal-day cal-header'; el.textContent = d; cal.appendChild(el); });
+      // May 2026 starts on Friday (index 4 in mon-based)
+      for (let i = 0; i < 4; i++) { const el = document.createElement('div'); el.className = 'cal-day'; cal.appendChild(el); }
+      for (let d = 1; d <= 31; d++) {
+        const el = document.createElement('div');
+        el.className = 'cal-day';
+        if (d === 28) el.classList.add('today');
+        if (eventDays.includes(d)) el.classList.add('has-event');
+        el.textContent = d;
+        cal.appendChild(el);
+      }
+    })();
+
+    // News Ticker
+    (function() {
+      const scroll = document.getElementById('news-scroll');
+      const news = [
+        { t: 'Yerli İşlemci Çakıl Seri Üretimde', s: 'Webrazzi' },
+        { t: 'Kuantum İnternet Altyapısı Kuruluyor', s: 'Chip Online' },
+        { t: 'YZ Destekli Akıllı Şehirler', s: 'DonanımHaber' },
+        { t: 'Elektrikli Araç Şarj Ağı Genişliyor', s: 'Webtekno' },
+        { t: 'Metaverse Eğitim Kampüsleri', s: 'Technopat' },
+        { t: 'Tarımda İHA Dönemi Başlıyor', s: 'ShiftDelete' },
+        { t: 'Uzay Turizmi Yaklaşıyor', s: 'TeknoSeyir' },
+        { t: 'YZ Sanatı ve NFT Dalgası', s: 'DigitalAge' },
+      ];
+      // Double for seamless loop
+      [...news, ...news].forEach(n => {
+        scroll.innerHTML += '<div class="news-card-mini"><h4>' + n.t + '</h4><p>📰 ' + n.s + '</p></div>';
+      });
+    })();
+
+    // Particles
+    (function() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 200 + 'px';
+        p.style.top = Math.random() * 200 + 'px';
+        p.style.setProperty('--dx', (Math.random() - .5) * 60 + 'px');
+        p.style.setProperty('--dy', (Math.random() - .5) * 60 + 'px');
+        p.style.animationDelay = Math.random() * 4 + 's';
+        p.style.animationDuration = (3 + Math.random() * 3) + 's';
+        p.style.background = Math.random() > .5 ? 'var(--green)' : 'var(--blue)';
+        container.appendChild(p);
+      }
+    })();
+
+    updateUI();
   </script>
 </body>
 </html>
