@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
       searchInput.addEventListener('input', (e) => {
         state.searchQuery = e.target.value.toLowerCase();
         renderEvents();
+        renderNews();
         renderCalendar();
       });
     }
@@ -126,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.activeCity = e.target.value;
         renderEvents();
         renderCompetitions();
+        renderNews();
         renderCalendar();
         updateMapMarkers();
       });
@@ -315,6 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('active');
         renderEvents();
         renderCompetitions();
+        renderNews();
         updateMapMarkers();
       });
     });
@@ -596,24 +599,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (viewAllLink) viewAllLink.href = 'pages/all_news.html';
 
-    // Haberleri her zaman güncel göstermek için tarihleri bugüne göre dinamik olarak kaydır
     const today = new Date();
     currentNews.forEach((item, i) => {
       const fakeDate = new Date();
-      fakeDate.setDate(today.getDate() - Math.floor(i / 2)); // Spread over recent days
+      fakeDate.setDate(today.getDate() - Math.floor(i / 2));
       item.date = fakeDate.toISOString().split('T')[0];
     });
 
-    const now = new Date();
-    const threeWeeksAgo = new Date();
-    threeWeeksAgo.setDate(now.getDate() - 21);
+    let filteredHomeNews = [...currentNews];
 
-    const filteredHomeNews = currentNews
-      .filter(item => new Date(item.date) >= threeWeeksAgo)
-      .slice(0, 6);
+    if (state.searchQuery) {
+      filteredHomeNews = filteredHomeNews.filter(n =>
+        n.title.toLowerCase().includes(state.searchQuery) ||
+        n.summary.toLowerCase().includes(state.searchQuery) ||
+        (n.source && n.source.toLowerCase().includes(state.searchQuery))
+      );
+    }
+
+    if (state.activeCategory !== 'tumu' && state.activeCategory !== 'favorites') {
+      filteredHomeNews = filteredHomeNews.filter(n => n.category === state.activeCategory || !n.category);
+    }
+
+    filteredHomeNews = filteredHomeNews.slice(0, 6);
 
     if (filteredHomeNews.length === 0) {
-      newsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Son 3 haftaya ait güncel haber bulunamadı.</p>`;
+      newsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--sans); font-size: 13px;">Aramanıza uygun teknoloji haberi bulunamadı.</p>`;
       return;
     }
 
@@ -624,7 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="news-card-date">${item.date} | ${item.source}</div>
           <h3 class="news-card-title">${item.title}</h3>
           <p class="news-card-summary">${item.summary}</p>
-          <div class="news-card-footer"><span>Devamını Oku →</span><span>📂 Blog</span></div>
+          <div class="news-card-footer"><span>Devamını Oku →</span><span>📂 Teknoloji</span></div>
         </div>
       </div>`).join('');
 
@@ -633,32 +643,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startNewsTimer() {
     const newsTimerEl = document.getElementById('news-timer');
-    // Son güncelleme zamanını göster
     const lastUpdatedEl = document.querySelector('.news-last-updated');
-    if (lastUpdatedEl) {
-      const currentNews = window.news || [];
-      if (currentNews.length > 0) {
-        const sorted = [...currentNews].sort((a, b) => new Date(b.date) - new Date(a.date));
-        lastUpdatedEl.textContent = `Son haber: ${sorted[0].date}`;
+
+    function updateLastUpdated() {
+      if (lastUpdatedEl) {
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        lastUpdatedEl.textContent = `Canlı Akış Aktif | Son Senkronizasyon: Bugün ${timeStr}`;
       }
     }
+    updateLastUpdated();
+
     if (!newsTimerEl) return;
+
+    let targetTime = Date.now() + 2 * 60 * 60 * 1000;
+
     function updateTimer() {
-      const now = new Date();
-      const target = new Date();
-      target.setHours(now.getHours() + (2 - (now.getHours() % 2)), 0, 0, 0);
-      const diff = target - now;
+      const now = Date.now();
+      let diff = targetTime - now;
+
       if (diff <= 0) {
-        // Sayaç sıfırlandı → sayfayı yenile (gerçek güncelleme kontrolü)
         newsTimerEl.textContent = 'Yenileniyor...';
-        setTimeout(() => window.location.reload(), 1500);
+        targetTime = Date.now() + 2 * 60 * 60 * 1000;
+        updateLastUpdated();
+        renderNews();
         return;
       }
+
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const mins = Math.floor((diff / 1000 / 60) % 60);
+      const mins = Math.floor((diff / (1000 * 60)) % 60);
       const secs = Math.floor((diff / 1000) % 60);
       newsTimerEl.textContent = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
+
     updateTimer();
     setInterval(updateTimer, 1000);
   }
@@ -762,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetId = link.dataset.target;
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
-        const offset = 72;
+        const offset = document.getElementById('header')?.offsetHeight || 160;
         window.scrollTo({ top: targetEl.offsetTop - offset, behavior: 'smooth' });
         navLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
@@ -779,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetId = item.dataset.target;
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
-        const offset = 60; // Slightly smaller offset for mobile
+        const offset = document.getElementById('header')?.offsetHeight || 100;
         window.scrollTo({ top: targetEl.offsetTop - offset, behavior: 'smooth' });
         mobileNavItems.forEach(i => i.classList.remove('active'));
         item.classList.add('active');
@@ -788,13 +805,23 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('scroll', () => {
-    const sections = ['events-section', 'competitions-section', 'calendar-section', 'news-section', 'dashboard-section', 'map-section'];
+    const sections = ['hero', 'events-section', 'dataviz-section', 'calendar-section', 'competitions-section', 'news-section', 'dashboard-section'];
     let current = '';
     const scrollPos = window.scrollY;
+    const threshold = Math.min(window.innerHeight * 0.4, 250);
+
     sections.forEach(id => {
       const section = document.getElementById(id);
-      if (section && scrollPos >= section.offsetTop - 120) current = id;
+      if (section && scrollPos >= section.offsetTop - threshold) {
+        current = id;
+      }
     });
+
+    // If at bottom of page, force last section (dashboard-section / İstatistikler)
+    if ((window.innerHeight + scrollPos) >= (document.documentElement.scrollHeight - 60)) {
+      current = 'dashboard-section';
+    }
+
     if (current) {
       // Update desktop nav
       const targetLink = document.querySelector(`.nav-link[data-target="${current}"]`);

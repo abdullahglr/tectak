@@ -4,26 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TECTAK — Tüm Yarışmalar</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=2.0">
+  <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
 </head>
 <body>
 
   <!-- ===== HEADER ===== -->
-  <header class="header" id="header">
-    <div class="container header-inner">
-      <a href="../index.html" class="logo-group">
-        <img src="../assets/images/LOGO.png" alt="TECTAK Logo">
-        <span>TECTAK</span>
-      </a>
-      <nav class="nav-links">
-        <a href="../index.html" class="nav-link">Ana Sayfa</a>
-      </nav>
-    </div>
+  <header style="position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(10,9,7,.96);backdrop-filter:blur(24px);border-bottom:1px solid rgba(205,198,190,.15);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;">
+    <a href="../index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+      <img src="../assets/images/LOGO.png" alt="TECTAK" style="height:20px;filter:invert(1);opacity:.8;">
+      <span style="font-family:'EB Garamond',serif;font-size:22px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#e5e2e1;">TECTAK</span>
+    </a>
+    <a href="javascript:history.back()" style="display:flex;align-items:center;gap:8px;font-family:'Hanken Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#888;text-decoration:none;">
+      ← Geri Dön
+    </a>
   </header>
 
   <!-- ===== ALL COMPETITIONS ===== -->
-  <main class="container" style="margin-top: 120px; padding-bottom: 60px;">
-    <h1 class="gradient-text" style="font-size: 2.5rem; margin-bottom: 40px; text-align: center;">Tüm Yarışmalar</h1>
+  <main class="container" style="margin-top: 100px; padding-bottom: 60px;">
+    <h1 style="font-family:'EB Garamond',serif;font-size:clamp(28px,4vw,52px);font-weight:400;margin-bottom:40px;text-align:center;color:var(--on-surface);">Tüm Yarışmalar</h1>
     <div class="comp-grid" id="all-comp-grid">
       <!-- Loaded by JS -->
     </div>

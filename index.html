@@ -4,315 +4,338 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description"
-    content="TECTAK - Türkiye'deki teknoloji, bilişim, robotik ve elektronik etkinliklerini keşfedin. Seminer, fuar, gösteri ve etkinlik takvimi.">
-  <title>TECTAK — Teknoloji Takvimi</title>
+  <meta name="description" content="TECTAK — Türkiye'nin teknoloji, bilişim, robotik ve savunma sanayi etkinliklerini tek çatı altında toplayan dijital gazete.">
+  <meta name="theme-color" content="#080808">
+  <title>TECTAK — Türkiye'nin Teknoloji Merkezi</title>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
   <!-- App CSS -->
-  <link rel="stylesheet" href="assets/css/style.css?v=2.0">
-  
-  <!-- Animation Styles & Global Overrides -->
+  <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+
   <style>
-    .anim-container {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 150px;
-      height: 150px;
-      z-index: 1000;
-      pointer-events: auto;
-      cursor: pointer;
-      background: rgba(11, 25, 44, 0.8);
-      border-radius: 50%;
-      border: 2px solid #00ffcc;
-      box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
-      overflow: hidden;
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    /* Custom Animations for User Request */
-    @keyframes breathOut {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.5; }
-      100% { transform: scale(0); opacity: 0; }
-    }
-    
-    @keyframes bounceIn {
-      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      60% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-      80% { transform: translate(-50%, -50%) scale(0.9); }
-      100% { transform: translate(-50%, -50%) scale(1); }
-    }
-    
-    @keyframes bounceOut {
-      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-    }
-    
-    @keyframes breathIn {
-      0% { transform: scale(0); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    #animation-canvas {
-      height: 100%;
-      width: 100%;
-      display: block;
-    }
-    .map-section.fullscreen {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #030811;
-      padding: 40px 20px 20px 20px;
-      overflow: hidden;
-    }
-    .map-section.fullscreen .map-wrapper {
-      height: calc(100% - 100px);
-    }
+    /* 3D Globe */
+    .anim-container { position:fixed; bottom:32px; right:32px; width:150px; height:150px; z-index:1000; pointer-events:auto; cursor:pointer; background:rgba(8,8,8,.9); border-radius:50%; border:1px solid rgba(0,212,255,.25); box-shadow:0 0 20px rgba(0,212,255,.15); overflow:hidden; transition:all .5s cubic-bezier(.4,0,.2,1); }
+    #animation-canvas { height:100%; width:100%; display:block; }
+    .map-section.fullscreen { position:fixed; inset:0; z-index:9999; background:#030811; padding:40px 20px 20px; overflow:hidden; }
+    .map-section.fullscreen .map-wrapper { height:calc(100% - 100px); margin-top:0; }
+    @keyframes breathOut { 0%{transform:scale(1);opacity:1} 50%{transform:scale(1.1);opacity:.5} 100%{transform:scale(0);opacity:0} }
+    @keyframes bounceIn { 0%{transform:translate(-50%,-50%) scale(0);opacity:0} 60%{transform:translate(-50%,-50%) scale(1.1);opacity:1} 80%{transform:translate(-50%,-50%) scale(.95)} 100%{transform:translate(-50%,-50%) scale(1)} }
+    @keyframes bounceOut { 0%{transform:translate(-50%,-50%) scale(1);opacity:1} 100%{transform:translate(-50%,-50%) scale(0);opacity:0} }
+    @keyframes breathIn { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
   </style>
 </head>
 
 <body>
 
-  <!-- TECTAK AI Liquid Ocean Fullsite Background -->
-  <div id="site-ocean-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; pointer-events: none;"></div>
-  <!-- Background Dark Overlay (50% Opacity) -->
-  <div id="site-ocean-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; opacity: 0.5; z-index: -2; pointer-events: none;"></div>
 
-  <!-- 3D BACKGROUND -->
+  <!-- Dark Newspaper Texture BG -->
+  <div id="site-grain" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-2;pointer-events:none;opacity:.55;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\");background-repeat:repeat;"></div>
+
+  <!-- 3D Globe -->
   <div class="anim-container" id="anim-hero-container">
     <canvas id="animation-canvas"></canvas>
   </div>
 
-  <!-- ===== HEADER ===== -->
+  <!-- ===================== HEADER — EDITORIAL MASTHEAD ===================== -->
   <header class="header" id="header">
-    <div class="container header-inner">
-      <a href="#" class="logo-group">
-        <img src="assets/images/LOGO.png" alt="TECTAK Logo">
-        <span>TECTAK</span>
-      </a>
-      <div class="header-stats">
-        <div class="header-stat">
-          <span class="header-stat-value" id="total-count">0</span>
-          <span class="header-stat-label">Etkinlik</span>
+
+    <!-- Eyebrow: Edition | Stats | Tagline -->
+    <div class="masthead-eyebrow">
+      <div class="masthead-tag">
+        Edition No. 1 — <span id="masthead-date">—</span>
+        <strong>İstanbul, TR</strong>
+      </div>
+      <div class="masthead-stats">
+        <div class="mstat">
+          <span class="mstat-val" id="total-count">0</span>
+          <span class="mstat-lbl">Etkinlik</span>
         </div>
-        <div class="header-stat">
-          <span class="header-stat-value">8</span>
-          <span class="header-stat-label">Şehir</span>
+        <div class="mstat">
+          <span class="mstat-val">8</span>
+          <span class="mstat-lbl">Şehir</span>
         </div>
-        <div class="header-stat">
-          <span class="header-stat-value">5</span>
-          <span class="header-stat-label">Kategori</span>
+        <div class="mstat">
+          <span class="mstat-val">5</span>
+          <span class="mstat-lbl">Kategori</span>
         </div>
       </div>
+      <div class="masthead-tag" style="text-align:right;">
+        Türkiye'nin Dijital
+        <strong>Teknoloji Rehberi</strong>
+      </div>
+    </div>
+
+    <!-- Logo row -->
+    <div class="masthead-logo-row">
+      <a href="#">
+        <img src="assets/images/LOGO.png" alt="TECTAK">
+        <span class="masthead-wordmark">TECTAK</span>
+      </a>
+    </div>
+
+    <!-- Nav row -->
+    <div class="masthead-nav">
       <nav class="nav-links" id="main-nav">
         <div class="nav-indicator" id="nav-indicator"></div>
-        <button class="nav-link active" data-target="events-section">Etkinlikler</button>
-        <button class="nav-link" data-target="competitions-section">Yarışmalar</button>
+        <button class="nav-link active" data-target="hero">Ön Sayfa</button>
+        <button class="nav-link" data-target="events-section">Etkinlikler</button>
+        <button class="nav-link" data-target="dataviz-section">Harita</button>
         <button class="nav-link" data-target="calendar-section">Takvim</button>
+        <button class="nav-link" data-target="competitions-section">Yarışmalar</button>
         <button class="nav-link" data-target="news-section">Haberler</button>
         <button class="nav-link" data-target="dashboard-section">İstatistikler</button>
-        <button class="nav-link" data-target="map-section">Harita</button>
       </nav>
+      <button class="masthead-subscribe" id="subscribe-btn">
+        AI Asistan
+      </button>
     </div>
   </header>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero" id="hero" style="position: relative; overflow: hidden; padding: 140px 0 100px; background: transparent;">
-    
-    <div class="container" style="position: relative; z-index: 1;">
-      <div class="hero-badge">
-        <span class="pulse-dot"></span>
-        Canlı Etkinlik Takibi <span style="margin:0 8px;opacity:0.5;">|</span> Sonraki Güncelleme: <span
-          id="countdown-timer" style="font-weight:bold;color:var(--accent-green);">Yükleniyor...</span>
-      </div>
-      <h1><span class="flip-text" style="color:#fff;">Teknoloji Dünyasının</span><br><span class="gradient-text flip-text" style="display:inline-block;">Etkinlik Takvimi</span></h1>
-      <p>Türkiye'deki seminer, fuar, gösteri ve etkinlikleri keşfedin. Kategorize edin, takip edin, kaydolun.</p>
-      <div class="filter-container">
-        <div class="search-wrapper" style="flex: 2; margin: 0; max-width: none;">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" class="search-input" placeholder="Etkinlik, şehir veya konu ara...">
+  <!-- ===================== HERO — 8/4 EDITORIAL LAYOUT ===================== -->
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+
+      <!-- LEFT 8 cols: headline + image + body + filters -->
+      <div class="hero-main">
+        <h1 class="hero-headline" style="font-style:italic;">
+          Türkiye'nin teknoloji<br>
+          ekosistemi tek bir<br>
+          merkezde birleşiyor.
+        </h1>
+
+        <!-- Hero figure -->
+        <div class="hero-figure">
+          <canvas id="hero-canvas" style="width:100%;height:100%;display:block;"></canvas>
+          <div class="hero-figure-label">Fig 1. TECTAK Core</div>
         </div>
-        <div class="city-select-wrapper">
-          <select id="city-filter" class="city-select">
-            <option value="all">📍 Tüm Şehirler</option>
-          </select>
-          <span class="city-select-arrow">▼</span>
+
+        <!-- Body text (drop cap) -->
+        <div class="hero-body">
+          <p class="hero-drop-cap">TECTAK, Türkiye'deki teknoloji, savunma sanayii, robotik, yapay zeka ve bilişim dünyasından tüm etkinlikleri tek bir platformda toplayan açık kaynaklı bir web uygulamasıdır. Amacımız, dağınık halde bulunan teknoloji ekosistemini erişilebilir ve etkileşimli bir arayüzle sunmaktır.</p>
+          <p>Günümüzde hızla gelişen teknoloji dünyasında, yenilikleri takip etmek ve doğru zamanda doğru yerde olmak her zamankinden daha önemli. Seminerler, fuarlar, yarışmalar ve gösteriler artık tek bir dijital çatı altında toplanıyor.</p>
+          <p>Yapay zeka destekli asistanımız ve interaktif harita altyapımız ile kullanıcılar, ilgi alanlarına en uygun etkinlikleri saniyeler içinde filtreleyebilir, detaylı bilgilere ulaşabilir ve takvimlerini optimize edebilirler.</p>
+        </div>
+
+        <!-- Search & filter bar -->
+        <div class="hero-filter-bar">
+          <div class="search-wrapper" style="flex:2;min-width:180px;">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" class="search-input" placeholder="Etkinlik, şehir veya konu ara...">
+          </div>
+          <div class="city-select-wrapper" style="flex:1;min-width:130px;">
+            <select id="city-filter" class="city-select">
+              <option value="all">📍 Tüm Şehirler</option>
+            </select>
+            <span class="city-select-arrow">▼</span>
+          </div>
+          <div class="price-filters">
+            <label class="price-filter-label"><input type="radio" name="priceFilter" value="all" checked><span>Tümü</span></label>
+            <label class="price-filter-label"><input type="radio" name="priceFilter" value="free"><span>Ücretsiz</span></label>
+            <label class="price-filter-label"><input type="radio" name="priceFilter" value="paid"><span>Ücretli</span></label>
+          </div>
         </div>
       </div>
-      <div class="price-filters">
-        <label class="price-filter-label">
-          <input type="radio" name="priceFilter" value="all" checked>
-          <span>Tümü</span>
-        </label>
-        <label class="price-filter-label">
-          <input type="radio" name="priceFilter" value="free">
-          <span>Ücretsiz</span>
-        </label>
-        <label class="price-filter-label">
-          <input type="radio" name="priceFilter" value="paid">
-          <span>Ücretli</span>
-        </label>
+
+      <!-- RIGHT 4 cols: sidebar -->
+      <div class="hero-sidebar">
+        <h2 class="sidebar-title">Son Gelişmeler</h2>
+
+        <!-- Sidebar items — filled dynamically and statically -->
+        <div id="sidebar-news">
+          <!-- JS will inject latest news here; static fallback below -->
+          <div class="sidebar-item">
+            <span class="sidebar-tag">Son Dakika</span>
+            <div class="sidebar-item-title">TEKNOFEST 2024 Başvuruları Başladı</div>
+            <p class="sidebar-item-desc">Dünyanın en büyük havacılık, uzay ve teknoloji festivali TEKNOFEST için yeni dönem başvuruları açıldı. Milyonlarca gencin katılımı bekleniyor.</p>
+          </div>
+          <div class="sidebar-item">
+            <span class="sidebar-tag muted">Gündem</span>
+            <div class="sidebar-item-title">Yapay Zeka ve Geleceğin Meslekleri</div>
+            <p class="sidebar-item-desc">Yapay zeka devrimi iş gücü piyasasını nasıl dönüştürüyor? Hangi yetenekler ön plana çıkacak?</p>
+          </div>
+        </div>
+
+        <!-- AI Widget -->
+        <div class="ai-sidebar-widget">
+          <div class="ai-sidebar-icon">🤖</div>
+          <h3 class="ai-sidebar-title">TECTAK AI'a Sorun</h3>
+          <p class="ai-sidebar-desc">Yaklaşan teknoloji etkinlikleri hakkında sorunuz mu var? Yapay zeka asistanımıza danışın.</p>
+          <button class="ai-sidebar-btn" id="sidebar-ai-btn">
+            Soru Sor
+          </button>
+        </div>
       </div>
-    </div>
+
+    </div><!-- /hero-inner -->
   </section>
 
-  <!-- ===== CATEGORY TABS ===== -->
-  <section class="tabs-section reveal">
-    <div class="container">
-      <div class="tabs-container" id="tabs-container"></div>
-    </div>
-  </section>
+  <!-- ===================== CATEGORY TABS ===================== -->
+  <div class="section-divider">
+    <div class="section-divider-title">Etkinlik Kategorileri</div>
+  </div>
+  <div class="tabs-section reveal">
+    <div class="tabs-container" id="tabs-container"></div>
+  </div>
 
-  <!-- ===== EVENTS ===== -->
+  <!-- ===================== EVENTS ===================== -->
   <section class="events-section reveal" id="events-section">
-    <div class="container">
-      <div class="events-header">
-        <h2>Yaklaşan Etkinlikler</h2>
-        <span class="events-count" id="events-count">0 etkinlik</span>
+    <div class="section-header">
+      <h2>Yaklaşan Etkinlikler</h2>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="font-family:var(--sans);font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+          <span style="width:6px;height:6px;background:var(--tertiary);border-radius:50%;display:inline-block;box-shadow:0 0 6px var(--tertiary);animation:pulse2 2s infinite;"></span>
+          Canlı | <span id="countdown-timer" style="color:var(--tertiary);font-weight:600;">Yükleniyor...</span>
+        </div>
+        <span class="section-count" id="events-count">0 etkinlik</span>
       </div>
-      <div class="events-grid reveal-stagger" id="events-grid"></div>
     </div>
+    <div class="events-grid reveal-stagger" id="events-grid"></div>
   </section>
 
-  <!-- ===== COMPETITIONS ===== -->
-  <section class="competitions-section reveal" id="competitions-section">
-    <div class="container">
-      <div class="competitions-header">
+  <!-- ===================== DATA VIZ + MAP + SCHEDULE ===================== -->
+  <div class="dataviz-section" id="dataviz-section">
+    <div class="dataviz-section-title">Veri Görselleştirme &amp; Harita</div>
+    <div class="dataviz-inner">
+
+      <!-- Map — 8 cols -->
+      <div class="dataviz-map" id="map-section">
+        <div class="dataviz-map-header">
+          <h3 class="dataviz-map-title">Canlı Etkinlik Haritası</h3>
+          <span class="dataviz-realtime">Anlık Veri Akışı</span>
+        </div>
+        <div class="map-toggle-group">
+          <button class="map-toggle active" data-mode="pins">📍 Konum Pinleri</button>
+          <button class="map-toggle" data-mode="heat">🔥 Isı Haritası</button>
+          <button class="map-toggle" id="3d-map-trigger">🌐 3D Harita</button>
+        </div>
+        <div class="map-wrapper" style="height:420px;margin-top:0;position:relative;z-index:1;">
+          <div id="map" style="position:relative;z-index:1;"></div>
+        </div>
+        <p class="map-fig-caption">Şekil 2. Türkiye genelindeki aktif teknoloji merkezlerinin dağılımı. Vurgulanan noktalar yüksek yoğunluklu etkinlik kümelerini gösterir.</p>
+      </div>
+
+      <!-- Tech Schedule — 4 cols -->
+      <div class="dataviz-schedule" id="calendar-section">
+        <h3 class="schedule-title">Etkinlik Takvimi</h3>
+
+        <!-- Calendar nav -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+          <button id="prev-month" class="nav-btn-sm">&#8249;</button>
+          <span id="current-month-year" style="font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--primary);">Mayıs 2026</span>
+          <button id="next-month" class="nav-btn-sm">&#8250;</button>
+        </div>
+
+        <!-- Mini calendar -->
+        <div class="calendar-days-header">
+          <span>Pt</span><span>Sl</span><span>Çr</span><span>Pr</span><span>Cm</span><span>Ct</span><span>Pz</span>
+        </div>
+        <div id="calendar-grid" class="calendar-grid" style="gap:3px;"></div>
+        <div id="calendar-event-details" class="calendar-event-details" style="margin-top:12px;">
+          <p class="empty-msg">Bir güne tıklayın.</p>
+        </div>
+
+        <!-- Upcoming events list (schedule items) -->
+        <div id="tech-schedule" style="margin-top:16px;">
+          <!-- Filled by JS -->
+        </div>
+
+        <a href="pages/all_competitions.html" class="schedule-view-all">Tüm Dizini Görüntüle →</a>
+      </div>
+
+    </div><!-- /dataviz-inner -->
+  </div>
+
+  <!-- ===================== COMPETITIONS ===================== -->
+  <div class="competitions-section" id="competitions-section">
+    <div class="competitions-inner">
+      <div class="comp-header-row">
         <div class="comp-title-group">
           <h2>Yaklaşan Yarışmalar</h2>
           <div class="comp-refresh-timer">
-            <span class="timer-icon">🔄</span>
-            Canli Takip | Sonraki Güncelleme: <span id="comp-countdown-timer"
-              style="color:var(--accent-green);font-weight:bold;">Yükleniyor...</span>
+            🔄 Canlı Takip | <span id="comp-countdown-timer" style="color:var(--tertiary);font-weight:600;margin-left:4px;">Yükleniyor...</span>
           </div>
         </div>
         <a href="pages/all_competitions.html" class="view-all-link">Tüm Yarışmalar →</a>
       </div>
       <div class="comp-grid reveal-stagger" id="comp-grid"></div>
     </div>
-  </section>
+  </div>
 
-  <!-- ===== CALENDAR ===== -->
-  <section class="calendar-section reveal" id="calendar-section">
-    <div class="container">
-      <div class="calendar-header">
-        <h2>Takvim Görünümü</h2>
-        <div class="calendar-nav">
-          <button id="prev-month" class="nav-btn-sm">&lt;</button>
-          <h3 id="current-month-year">Mayıs 2026</h3>
-          <button id="next-month" class="nav-btn-sm">&gt;</button>
-        </div>
-      </div>
-      <div class="calendar-wrapper">
-        <div class="calendar-days-header">
-          <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
-        </div>
-        <div id="calendar-grid" class="calendar-grid"></div>
-      </div>
-      <div id="calendar-event-details" class="calendar-event-details">
-        <p class="empty-msg">Detayları görmek için takvimden bir güne tıklayın.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== NEWS ===== -->
-  <section class="news-section reveal" id="news-section">
-    <div class="container">
-      <div class="news-header">
+  <!-- ===================== NEWS ===================== -->
+  <div class="news-section reveal" id="news-section">
+    <div class="news-inner">
+      <div class="news-header-row">
         <div class="news-title-group">
           <h2>Teknoloji Haberleri</h2>
           <div class="news-refresh-timer">
-            <span class="timer-icon">🔄</span>
-            Sonraki Güncelleme: <span id="news-timer">02:00:00</span>
+            🔄 Sonraki Güncelleme: <span id="news-timer" style="margin-left:4px;">02:00:00</span>
           </div>
-          <div class="news-refresh-timer" style="font-size:0.7rem; color: var(--text-muted);">
-            <span class="timer-icon">📅</span>
-            <span class="news-last-updated">Yükleniyor...</span>
+          <div class="news-refresh-timer" style="font-size:10px;color:var(--text-muted);">
+            📅 <span class="news-last-updated">Yükleniyor...</span>
           </div>
         </div>
         <a href="pages/all_news.html" class="view-all-link">Tüm Haberler →</a>
       </div>
       <div class="news-grid reveal-stagger" id="news-grid"></div>
     </div>
-  </section>
+  </div>
 
-  <!-- ===== TRENDS/DASHBOARD ===== -->
-  <section class="dashboard-section reveal" id="dashboard-section">
-    <div class="container">
-      <h2>Teknoloji Trendleri & İstatistikler</h2>
-      <p class="dashboard-subtitle">Türkiye'deki teknoloji ekosisteminin veri analizleri ve trendleri</p>
-      
-      <div class="dashboard-grid">
-        <div class="dashboard-card chart-card">
-          <h3>En Popüler Kategoriler</h3>
-          <div class="chart-container">
-            <canvas id="categoryChart"></canvas>
-          </div>
+  <!-- ===================== DASHBOARD / STATS ===================== -->
+  <div class="charts-section" id="dashboard-section">
+    <div class="charts-section-title">Teknoloji Trendleri &amp; İstatistikler</div>
+    <div class="charts-inner">
+      <div class="dashboard-card chart-card">
+        <h3>En Popüler Kategoriler</h3>
+        <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+      </div>
+      <div class="dashboard-card chart-card">
+        <h3>Etkinlik Yoğunluğu En Yüksek Şehirler</h3>
+        <div class="chart-container"><canvas id="cityChart"></canvas></div>
+      </div>
+      <div class="dashboard-card stats-card">
+        <h3>Genel Özet</h3>
+        <div class="stats-container" id="generalStats">
+          <div style="grid-column:span 2;text-align:center;color:var(--text-muted);padding:32px;font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;">İstatistikler hesaplanıyor...</div>
         </div>
-        
-        <div class="dashboard-card chart-card">
-          <h3>Etkinlik Yoğunluğu En Yüksek Şehirler</h3>
-          <div class="chart-container">
-            <canvas id="cityChart"></canvas>
-          </div>
-        </div>
-        
-        <div class="dashboard-card stats-card">
-          <h3>Genel Özet</h3>
-          <div class="stats-container" id="generalStats">
-            <div style="text-align: center; color: var(--text-muted); padding: 40px;">İstatistikler hesaplanıyor...</div>
-          </div>
-        </div>
-
-        <div class="dashboard-card chart-card">
-          <h3>Fiyat Dağılımı (Ücretsiz vs. Ücretli)</h3>
-          <div class="chart-container">
-            <canvas id="priceChart"></canvas>
-          </div>
-        </div>
+      </div>
+      <div class="dashboard-card chart-card">
+        <h3>Fiyat Dağılımı</h3>
+        <div class="chart-container"><canvas id="priceChart"></canvas></div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ===== MAP ===== -->
-  <section class="map-section reveal" id="map-section">
-    <div class="container">
-      <h2>Harita Görünümü</h2>
-      <p class="map-subtitle">Etkinliklerin Türkiye genelindeki dağılımını görüntüleyin</p>
-      <div class="map-toggle-group">
-        <button class="map-toggle active" data-mode="pins">📍 Konum Pinleri</button>
-        <button class="map-toggle" data-mode="heat">🔥 Isı Haritası</button>
-        <button class="map-toggle" id="3d-map-trigger">🌐 3D Harita</button>
-      </div>
-      <div class="map-wrapper">
-        <div id="map"></div>
-      </div>
-    </div>
-  </section>
+  <!-- ===================== LETTERS TO THE EDITOR ===================== -->
 
-  <!-- ===== FOOTER ===== -->
+
+  <!-- ===================== FOOTER ===================== -->
   <footer class="footer">
-    <div class="container">
-      <p><a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank"
-          style="text-decoration:none; color:inherit;"><span class="gradient-text">TECTAK</span></a> — Teknoloji Takvimi
-        © 2026</p>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
-        <a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank"
-          style="color:var(--accent-blue); text-decoration:none; font-weight:700;">Abdullah GÜLER</a> tarafından
-        geliştirilmiştir.
-      </p>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-wordmark">TECTAK</div>
+        <div class="footer-tagline">
+          © 2026 TECTAK. Türkiye'nin Teknoloji Merkezi.<br>
+          <a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank">Abdullah GÜLER</a> tarafından geliştirilmiştir.
+        </div>
+      </div>
+      <div>
+        <div class="footer-nav-title">Dizin</div>
+        <nav class="footer-nav">
+          <a href="#hero">Ana Sayfa</a>
+          <a href="#dataviz-section">Harita</a>
+          <a href="#events-section">Etkinlikler</a>
+          <a href="#" onclick="document.getElementById('sidebar-ai-btn').click();return false;">AI Asistan</a>
+        </nav>
+      </div>
     </div>
   </footer>
 
-  <!-- ===== MOBILE BOTTOM NAV ===== -->
+  <!-- ===================== MOBILE BOTTOM NAV ===================== -->
   <nav class="mobile-bottom-nav">
-    <button class="mobile-nav-item active" data-target="events-section">
+    <button class="mobile-nav-item active" data-target="hero">
       <span class="m-nav-icon">🎯</span>
-      <span class="m-nav-label">Etkinlikler</span>
+      <span class="m-nav-label">Etkinlik</span>
     </button>
     <button class="mobile-nav-item" data-target="competitions-section">
       <span class="m-nav-icon">🏆</span>
@@ -326,13 +349,13 @@
       <span class="m-nav-icon">📰</span>
       <span class="m-nav-label">Haberler</span>
     </button>
-    <button class="mobile-nav-item" data-target="map-section">
+    <button class="mobile-nav-item" data-target="dataviz-section">
       <span class="m-nav-icon">📍</span>
       <span class="m-nav-label">Harita</span>
     </button>
   </nav>
 
-  <!-- ===== TECTAK AI CHATBOT ===== -->
+  <!-- ===================== AI CHATBOT ===================== -->
   <button id="ai-chat-launcher" class="ai-chat-launcher" title="TECTAK AI Asistanı">
     <div class="ai-launcher-icon">🤖</div>
     <div class="ai-launcher-ping"></div>
@@ -346,264 +369,364 @@
       </div>
       <button id="ai-chat-close" class="ai-chat-close-btn">&times;</button>
     </div>
-    
     <div id="ai-chat-messages" class="ai-chat-messages">
       <div class="ai-message assistant">
-        <div class="ai-message-bubble">Merhaba! Ben TECTAK AI Asistanıyım. 🤖 
+        <div class="ai-message-bubble">Merhaba! Ben TECTAK AI Asistanıyım. 🤖
 Türkiye'deki teknoloji fuarları, seminerler, robotik/yazılım yarışmaları ve güncel teknoloji haberleri konusunda size rehberlik etmek için buradayım.
 
-Bana dilediğiniz soruyu sorabilirsiniz! (Örn: *\"İstanbul'da hangi robotik etkinlikleri var?\"* veya *\"Ücretsiz yarışmaları listeler misin?\"*)</div>
+Bana dilediğiniz soruyu sorabilirsiniz!</div>
       </div>
     </div>
-    
     <div class="ai-chat-input-area">
       <input type="text" id="ai-chat-input" placeholder="Sorunuzu buraya yazın..." autocomplete="off">
       <button id="ai-chat-send" class="ai-chat-send-btn">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
       </button>
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- ===================== SCRIPTS ===================== -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
   <script src="data/data.js"></script>
   <script src="data/news_data.js"></script>
   <script src="js/app.js"></script>
   <script src="js/ai_assistant.js"></script>
-  
-  <!-- Chart.js Library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/dashboard.js"></script>
-  
-  <!-- Three.js Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="js/liquid_ocean.js"></script>
-  
-  <!-- ANIMATION SCRIPT -->
+  <!-- liquid_ocean.js disabled — newspaper bg used instead -->
+
+
+
+  <!-- Pulse animation for live badge -->
+  <style>
+    @keyframes pulse2 { 0%,100%{transform:scale(.9);box-shadow:0 0 0 0 rgba(150,181,159,.7)} 70%{transform:scale(1);box-shadow:0 0 0 6px rgba(150,181,159,0)} }
+  </style>
+
+  <!-- Sidebar news injection from news_data.js -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebarEl = document.getElementById('sidebar-news');
+      if (!sidebarEl) return;
+      const newsArr = window.news || (typeof news !== 'undefined' ? news : []);
+      if (!newsArr.length) return;
+
+      const latest = newsArr.slice(0, 4);
+      sidebarEl.innerHTML = latest.map((item, i) => `
+        <div class="sidebar-item" onclick="window.location.href='pages/news.html?id=${item.id}'" style="cursor:pointer;">
+          <span class="sidebar-tag ${i > 0 ? 'muted' : ''}">${i === 0 ? 'Breaking' : 'Gündem'}</span>
+          <div class="sidebar-item-title">${item.title}</div>
+          <p class="sidebar-item-desc">${item.summary}</p>
+        </div>
+      `).join('');
+    });
+  </script>
+
+  <!-- Tech schedule injection -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const scheduleEl = document.getElementById('tech-schedule');
+      if (!scheduleEl) return;
+      const eventsArr = window.events || (typeof events !== 'undefined' ? events : []);
+      if (!eventsArr.length) return;
+
+      const months = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+      const upcoming = eventsArr
+        .filter(e => new Date(e.date) >= new Date())
+        .sort((a,b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 4);
+
+      scheduleEl.innerHTML = upcoming.map(ev => {
+        const d = new Date(ev.date);
+        const dateStr = `${d.getDate()} ${months[d.getMonth()].toUpperCase()} — ${(ev.city || '').toUpperCase()}`;
+        return `
+          <div class="schedule-item" onclick="window.location.href='pages/event.html?id=${ev.id}'">
+            <div class="schedule-date">${dateStr}</div>
+            <div class="schedule-event-title">${ev.title}</div>
+          </div>
+        `;
+      }).join('');
+    });
+  </script>
+
+  <!-- 3D Globe -->
   <script>
     (function() {
       const canvas = document.getElementById('animation-canvas');
       const container = document.getElementById('anim-hero-container');
-      
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-      
+      const camera = new THREE.PerspectiveCamera(75,1,.1,1000);
       const isMobile = window.innerWidth <= 768;
       const size = isMobile ? 65 : 150;
-      const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-      renderer.setSize(size, size);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      const renderer = new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+      renderer.setSize(size,size);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
 
-      // Create a particle globe
-      const geometry = new THREE.SphereGeometry(1.5, 64, 64);
-      const material = new THREE.PointsMaterial({
-        color: 0x00ffcc,
-        size: 0.015,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending
-      });
-      
-      const points = new THREE.Points(geometry, material);
+      const geometry = new THREE.SphereGeometry(1.5,64,64);
+      const material = new THREE.PointsMaterial({color:0x00d4ff,size:.015,transparent:true,opacity:.85,blending:THREE.AdditiveBlending});
+      const points = new THREE.Points(geometry,material);
       scene.add(points);
-
-      // Add a wireframe sphere inside for more depth
-      const innerGeom = new THREE.SphereGeometry(1.48, 32, 32);
-      const innerMat = new THREE.MeshBasicMaterial({
-        color: 0x0055ff,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.2
-      });
-      const innerMesh = new THREE.Mesh(innerGeom, innerMat);
+      const innerGeom = new THREE.SphereGeometry(1.48,32,32);
+      const innerMat = new THREE.MeshBasicMaterial({color:0x004466,wireframe:true,transparent:true,opacity:.12});
+      const innerMesh = new THREE.Mesh(innerGeom,innerMat);
       scene.add(innerMesh);
-
       camera.position.z = 3;
 
-      // Animation
-      let scrollRotation = 0;
-      let lastScrollTop = 0;
-      
+      let scrollRot = 0, lastST = 0;
       function animate() {
         requestAnimationFrame(animate);
-        
-        points.rotation.y += 0.002 + scrollRotation;
-        innerMesh.rotation.y += 0.001 + scrollRotation;
-        
-        points.rotation.x += 0.0005;
-        
-        // Decay scroll rotation
-        scrollRotation *= 0.95;
-        
-        renderer.render(scene, camera);
+        points.rotation.y += .002 + scrollRot;
+        innerMesh.rotation.y += .001 + scrollRot;
+        points.rotation.x += .0005;
+        scrollRot *= .95;
+        renderer.render(scene,camera);
       }
-      
       animate();
 
-
-      let isCentered = false;
-      let is3DMode = false; // Flag to remember 3D selection
-
-      // 3D Map Trigger in Map Section
+      let isCentered = false, is3DMode = false;
       const trigger3d = document.getElementById('3d-map-trigger');
       const mapWrapper = document.querySelector('.map-wrapper');
-      
+
       if (trigger3d && mapWrapper) {
-        mapWrapper.style.position = 'relative'; // Ensure relative positioning
-        
+        mapWrapper.style.position = 'relative';
         trigger3d.addEventListener('click', () => {
-          is3DMode = true; // Remember 3D selection
-          
-          // Hide background map
+          is3DMode = true;
           const mapEl = document.getElementById('map');
           if (mapEl) mapEl.style.opacity = '0';
-          
-          // 1. Breath out from corner
-          container.style.animation = 'breathOut 0.5s ease forwards';
-          
-          // 2. After breath out, move to map wrapper and bounce in!
+          container.style.animation = 'breathOut .5s ease forwards';
           setTimeout(() => {
             mapWrapper.appendChild(container);
             container.style.position = 'absolute';
-            container.style.bottom = 'auto';
-            container.style.right = 'auto';
-            container.style.top = '50%';
-            container.style.left = '50%';
-            
-            container.style.animation = 'bounceIn 0.6s ease forwards';
+            container.style.bottom = 'auto'; container.style.right = 'auto';
+            container.style.top = '50%'; container.style.left = '50%';
+            container.style.animation = 'bounceIn .6s ease forwards';
             isCentered = true;
-            
-            container.style.width = '150px';
-            container.style.height = '150px';
-            container.style.boxShadow = '0 0 50px rgba(0, 255, 204, 0.8)';
+            container.style.width = '150px'; container.style.height = '150px';
+            container.style.boxShadow = '0 0 60px rgba(0,212,255,.6)';
           }, 500);
         });
       }
 
-      // Hook into other map toggles to restore map and move widget back
-      const otherToggles = Array.from(document.querySelectorAll('.map-toggle')).filter(el => el.id !== '3d-map-trigger');
-      otherToggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
-          is3DMode = false; // Reset 3D selection
-          
-          // Show background map
+      Array.from(document.querySelectorAll('.map-toggle')).filter(el => el.id !== '3d-map-trigger').forEach(t => {
+        t.addEventListener('click', () => {
+          is3DMode = false;
           const mapEl = document.getElementById('map');
           if (mapEl) mapEl.style.opacity = '1';
-          
-          // Move widget back if it was centered
           if (isCentered) {
             isCentered = false;
-            container.style.animation = 'bounceOut 0.5s ease forwards';
-            
+            container.style.animation = 'bounceOut .5s ease forwards';
             setTimeout(() => {
               document.body.appendChild(container);
-              container.style.position = 'fixed';
-              container.style.top = 'auto';
-              container.style.left = 'auto';
-              container.style.bottom = '30px';
-              container.style.right = '30px';
-              container.style.width = '150px';
-              container.style.height = '150px';
-              container.style.animation = 'breathIn 0.5s ease forwards';
-              container.style.boxShadow = '0 0 20px rgba(0, 255, 204, 0.5)';
-              container.style.transform = 'none';
+              container.style.cssText = 'position:fixed;top:auto;left:auto;bottom:32px;right:32px;width:150px;height:150px;transform:none;';
+              container.style.animation = 'breathIn .5s ease forwards';
             }, 500);
           }
         });
       });
 
-      // Scroll listener for dynamic widget position
       window.addEventListener('scroll', () => {
         const mapSection = document.getElementById('map-section');
         if (!mapSection) return;
-        
         const rect = mapSection.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        
-        // If in 3D mode and widget is centered in section
-        if (is3DMode && isCentered) {
-          // If map section goes 200px below the viewport bottom
-          if (rect.top > viewportHeight + 200) {
-            isCentered = false;
-            container.style.animation = 'bounceOut 0.5s ease forwards';
-            
-            setTimeout(() => {
-              document.body.appendChild(container);
-              container.style.position = 'fixed';
-              container.style.top = 'auto';
-              container.style.left = 'auto';
-              container.style.bottom = '30px';
-              container.style.right = '30px';
-              container.style.width = '150px';
-              container.style.height = '150px';
-              container.style.animation = 'breathIn 0.5s ease forwards';
-              container.style.boxShadow = '0 0 20px rgba(0, 255, 204, 0.5)';
-              container.style.transform = 'none';
-            }, 500);
-          }
-        } 
-        // If in 3D mode BUT widget is in corner (because user scrolled up)
-        else if (is3DMode && !isCentered) {
-          // If map section comes back within 150px of viewport bottom
-          if (rect.top < viewportHeight + 150) {
-            isCentered = true;
-            container.style.animation = 'breathOut 0.5s ease forwards';
-            
-            setTimeout(() => {
-              if (mapWrapper) {
-                mapWrapper.appendChild(container);
-                container.style.position = 'absolute';
-                container.style.bottom = 'auto';
-                container.style.right = 'auto';
-                container.style.top = '50%';
-                container.style.left = '50%';
-                container.style.animation = 'bounceIn 0.6s ease forwards';
-                container.style.width = '150px';
-                container.style.height = '150px';
-                container.style.boxShadow = '0 0 50px rgba(0, 255, 204, 0.8)';
-              }
-            }, 500);
-          }
+        const vh = window.innerHeight;
+        if (is3DMode && isCentered && rect.top > vh + 200) {
+          isCentered = false;
+          container.style.animation = 'bounceOut .5s ease forwards';
+          setTimeout(() => {
+            document.body.appendChild(container);
+            container.style.cssText = 'position:fixed;top:auto;left:auto;bottom:32px;right:32px;width:150px;height:150px;transform:none;';
+            container.style.animation = 'breathIn .5s ease forwards';
+          }, 500);
+        } else if (is3DMode && !isCentered && rect.top < vh + 150) {
+          isCentered = true;
+          container.style.animation = 'breathOut .5s ease forwards';
+          setTimeout(() => {
+            if (mapWrapper) {
+              mapWrapper.appendChild(container);
+              container.style.position = 'absolute';
+              container.style.top = '50%'; container.style.left = '50%';
+              container.style.animation = 'bounceIn .6s ease forwards';
+              container.style.boxShadow = '0 0 60px rgba(0,212,255,.6)';
+            }
+          }, 500);
         }
-      });
+      }, {passive:true});
 
-      // Click listener for explosion
       container.addEventListener('click', () => {
-        // Clear animation to allow transform to take effect!
         container.style.animation = 'none';
-        
-        // Smooth transition instead of layout shift
-        if (isCentered) {
-          container.style.transform = 'translate(-50%, -50%) scale(8)'; // Bigger scale for explosion feel!
-        } else {
-          container.style.transform = 'scale(4)';
-        }
+        container.style.transform = isCentered ? 'translate(-50%,-50%) scale(8)' : 'scale(4)';
         container.style.opacity = '0';
-        
-        // Quick scale up of particles (Explosion effect)
-        material.size = 0.1;
-        points.scale.set(3, 3, 3); // Scale up the 3D points mesh too!
-        
-        // Navigate after transition
-        setTimeout(() => {
-          window.location.href = 'pages/3d_map.html';
-        }, 500); // Match transition duration in CSS
+        material.size = .1;
+        points.scale.set(3,3,3);
+        setTimeout(() => { window.location.href = 'pages/3d_map.html'; }, 500);
       });
 
-
-      // Scroll listener
       window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY;
-        
-        // Add rotation on scroll based on speed
-        const delta = scrollTop - lastScrollTop;
-        scrollRotation = Math.min(Math.max(delta * 0.001, -0.1), 0.1);
-        lastScrollTop = scrollTop;
-      });
-
+        const st = window.scrollY;
+        const delta = st - lastST;
+        scrollRot = Math.min(Math.max(delta * .001, -.1), .1);
+        lastST = st;
+      }, {passive:true});
     })();
   </script>
-</body>
 
+  <!-- ===== BUG FIX SCRIPTS ===== -->
+  <script>
+    // ---- 1. DATE IN MASTHEAD EYEBROW ----
+    (function() {
+      const el = document.getElementById('masthead-date');
+      if (!el) return;
+      const now = new Date();
+      const months = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+      el.textContent = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+    })();
+
+    // ---- 2. HERO CANVAS — particle grid visualization ----
+    (function() {
+      const canvas = document.getElementById('hero-canvas');
+      if (!canvas) return;
+      const parent = canvas.parentElement;
+      function resize() {
+        canvas.width  = parent.offsetWidth;
+        canvas.height = parent.offsetHeight;
+      }
+      resize();
+      const ctx = canvas.getContext('2d');
+      const nodes = [];
+      const NODE_COUNT = 55;
+
+      for (let i = 0; i < NODE_COUNT; i++) {
+        nodes.push({
+          x: Math.random(), y: Math.random(),
+          vx: (Math.random() - .5) * .00025,
+          vy: (Math.random() - .5) * .00025,
+          r: Math.random() * 1.8 + .8,
+          bright: Math.random() > .85
+        });
+      }
+
+      let frame = 0;
+      function draw() {
+        frame++;
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        // Background
+        ctx.fillStyle = '#0a0907';
+        ctx.fillRect(0, 0, W, H);
+
+        // Scanlines
+        for (let y = 0; y < H; y += 3) {
+          ctx.fillStyle = 'rgba(0,0,0,0.18)';
+          ctx.fillRect(0, y, W, 1);
+        }
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(0,212,255,0.04)';
+        ctx.lineWidth = .5;
+        const gx = Math.floor(W / 24), gy = Math.floor(H / 14);
+        for (let c = 0; c <= 24; c++) { ctx.beginPath(); ctx.moveTo(c*gx,0); ctx.lineTo(c*gx,H); ctx.stroke(); }
+        for (let r = 0; r <= 14; r++) { ctx.beginPath(); ctx.moveTo(0,r*gy); ctx.lineTo(W,r*gy); ctx.stroke(); }
+
+        // Connections
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i+1; j < nodes.length; j++) {
+            const dx = (nodes[i].x - nodes[j].x) * W;
+            const dy = (nodes[i].y - nodes[j].y) * H;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 130) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(0,212,255,${0.18 * (1 - dist/130)})`;
+              ctx.lineWidth = .5;
+              ctx.moveTo(nodes[i].x*W, nodes[i].y*H);
+              ctx.lineTo(nodes[j].x*W, nodes[j].y*H);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Nodes
+        nodes.forEach(n => {
+          n.x += n.vx; n.y += n.vy;
+          if (n.x < 0 || n.x > 1) n.vx *= -1;
+          if (n.y < 0 || n.y > 1) n.vy *= -1;
+          const grd = ctx.createRadialGradient(n.x*W, n.y*H, 0, n.x*W, n.y*H, n.r * (n.bright ? 5 : 2.5));
+          grd.addColorStop(0, n.bright ? 'rgba(0,212,255,0.9)' : 'rgba(150,181,159,0.7)');
+          grd.addColorStop(1, 'transparent');
+          ctx.beginPath();
+          ctx.arc(n.x*W, n.y*H, n.r * (n.bright ? 3 : 1.5), 0, Math.PI*2);
+          ctx.fillStyle = grd;
+          ctx.fill();
+        });
+
+        // Ping pulse on brightest node
+        const bright = nodes.filter(n=>n.bright);
+        if (bright.length) {
+          const pn = bright[0];
+          const pulse = (Math.sin(frame * .04) + 1) / 2;
+          ctx.beginPath();
+          ctx.arc(pn.x*W, pn.y*H, 8 + pulse * 14, 0, Math.PI*2);
+          ctx.strokeStyle = `rgba(0,212,255,${.4*(1-pulse)})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Watermark
+        ctx.save();
+        ctx.font = 'bold 11px "Hanken Grotesk", sans-serif';
+        ctx.letterSpacing = '0.14em';
+        ctx.fillStyle = 'rgba(0,212,255,0.18)';
+        ctx.textAlign = 'right';
+        ctx.fillText('TECTAK LIVE NETWORK', W - 14, H - 12);
+        ctx.restore();
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+      window.addEventListener('resize', resize, {passive:true});
+    })();
+
+    // ---- 3. HEADER HEIGHT → hero padding-top fix ----
+    (function() {
+      const header = document.getElementById('header');
+      const hero = document.getElementById('hero');
+      if (!header || !hero) return;
+      function applyPadding() {
+        hero.style.paddingTop = (header.offsetHeight + 8) + 'px';
+      }
+      // Apply after fonts load
+      if (document.fonts) {
+        document.fonts.ready.then(applyPadding);
+      } else {
+        setTimeout(applyPadding, 300);
+      }
+      window.addEventListener('resize', applyPadding, {passive:true});
+    })();
+
+    // ---- 4. AI BUTTON FIXES (subscribe + sidebar) — stopPropagation ----
+    document.addEventListener('DOMContentLoaded', () => {
+      const launcher    = document.getElementById('ai-chat-launcher');
+      const chatWindow  = document.getElementById('ai-chat-window');
+      const subscribeBtn= document.getElementById('subscribe-btn');
+      const sidebarBtn  = document.getElementById('sidebar-ai-btn');
+
+      function openChat(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        if (chatWindow) chatWindow.classList.add('open');
+        const input = document.getElementById('ai-chat-input');
+        if (input) input.focus();
+        const ping = launcher ? launcher.querySelector('.ai-launcher-ping') : null;
+        if (ping) ping.style.display = 'none';
+      }
+
+      if (subscribeBtn) subscribeBtn.addEventListener('click', openChat);
+      if (sidebarBtn)   sidebarBtn.addEventListener('click', openChat);
+    });
+  </script>
+
+</body>
 </html>

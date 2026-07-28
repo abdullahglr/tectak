@@ -4,56 +4,134 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="TECTAK - Teknoloji Haberleri">
-  <title>TECTAK — Haber Detayları</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=2.0">
+  <title>TECTAK — Haber Detayı</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+  <style>
+    /* Minimal sub-page header — single bar */
+    .subpage-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      background: rgba(10,9,7,0.96);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+    }
+    .subpage-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .subpage-logo img {
+      height: 20px;
+      filter: invert(1);
+      opacity: 0.8;
+    }
+    .subpage-logo-text {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--on-surface);
+    }
+    .subpage-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color .3s var(--ease);
+    }
+    .subpage-back:hover { color: var(--primary); }
+    .subpage-back svg { width: 14px; height: 14px; }
+
+    /* Article layout */
+    .news-article-page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 96px 24px 80px;
+    }
+
+    /* Footer simple */
+    .subpage-footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+    .subpage-footer a { color: var(--primary); text-decoration: none; }
+    .subpage-footer a:hover { opacity: 0.75; }
+
+    @media (max-width: 768px) {
+      .subpage-header { padding: 0 20px; height: 56px; }
+      .news-article-page { padding: 76px 16px 100px; }
+      .subpage-footer { flex-direction: column; gap: 8px; text-align: center; padding: 20px 16px 80px; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ===== HEADER ===== -->
-  <header class="header" id="header">
-    <div class="container header-inner">
-      <a href="../index.html" class="logo-group">
-        <img src="../assets/images/LOGO.png" alt="TECTAK Logo">
-        <span>TECTAK</span>
-      </a>
-      <nav class="nav-links">
-        <a href="../index.html" class="nav-link">Geri Dön</a>
-      </nav>
-    </div>
+  <!-- HEADER -->
+  <header class="subpage-header">
+    <a href="../index.html" class="subpage-logo">
+      <img src="../assets/images/LOGO.png" alt="TECTAK">
+      <span class="subpage-logo-text">TECTAK</span>
+    </a>
+    <a href="javascript:history.back()" class="subpage-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Geri Dön
+    </a>
   </header>
 
-  <!-- ===== BLOG DETAIL ===== -->
-  <main class="detail-container">
+  <!-- ARTICLE CONTENT -->
+  <main class="news-article-page">
     <div id="blog-content-area">
-      <div style="text-align:center; color: var(--text-muted); padding: 100px;">Haber yükleniyor...</div>
+      <div style="text-align:center;color:var(--text-muted);padding:80px 0;font-family:var(--sans);font-size:12px;letter-spacing:.1em;text-transform:uppercase;">
+        Haber yükleniyor...
+      </div>
     </div>
   </main>
 
-  <!-- ===== FOOTER ===== -->
-  <footer class="footer">
-    <div class="container">
-      <p><a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank" style="text-decoration:none; color:inherit;"><span class="gradient-text">TECTAK</span></a> — Teknoloji Takvimi © 2026</p>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
-        <a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank" style="color:var(--accent-blue); text-decoration:none; font-weight:700;">Abdullah GÜLER</a> tarafından geliştirilmiştir.
-      </p>
-    </div>
+  <!-- FOOTER -->
+  <footer class="subpage-footer">
+    <span>© 2026 <a href="../index.html">TECTAK</a> — Türkiye'nin Teknoloji Merkezi</span>
+    <span><a href="https://www.linkedin.com/in/abdullah-g%C3%BCler-2a926b29b/" target="_blank">Abdullah GÜLER</a> tarafından geliştirilmiştir</span>
   </footer>
 
-  <!-- ===== MOBILE BOTTOM NAV ===== -->
+  <!-- MOBILE BOTTOM NAV -->
   <nav class="mobile-bottom-nav">
-    <a href="../index.html#events-section" class="mobile-nav-item">
-      <span class="m-nav-icon">🎯</span>
-      <span class="m-nav-label">Etkinlikler</span>
-    </a>
-    <a href="../index.html#calendar-section" class="mobile-nav-item">
-      <span class="m-nav-icon">📅</span>
-      <span class="m-nav-label">Takvim</span>
+    <a href="../index.html" class="mobile-nav-item">
+      <span class="m-nav-icon">🏠</span>
+      <span class="m-nav-label">Ana Sayfa</span>
     </a>
     <a href="../index.html#news-section" class="mobile-nav-item active">
       <span class="m-nav-icon">📰</span>
       <span class="m-nav-label">Haberler</span>
     </a>
-    <a href="../index.html#map-section" class="mobile-nav-item">
+    <a href="../index.html#events-section" class="mobile-nav-item">
+      <span class="m-nav-icon">🎯</span>
+      <span class="m-nav-label">Etkinlikler</span>
+    </a>
+    <a href="../index.html#dataviz-section" class="mobile-nav-item">
       <span class="m-nav-icon">📍</span>
       <span class="m-nav-label">Harita</span>
     </a>
@@ -61,5 +139,18 @@
 
   <script src="../data/news_data.js"></script>
   <script src="../js/news_detail.js"></script>
+
+  <!-- Fix image paths: news_detail.js outputs relative paths without ../ -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.querySelectorAll('#blog-content-area img').forEach(img => {
+          if (img.src && !img.src.startsWith('http') && !img.src.includes('../')) {
+            img.src = '../' + img.getAttribute('src');
+          }
+        });
+      }, 200);
+    });
+  </script>
 </body>
 </html>
